@@ -69,7 +69,6 @@
     "php_modules/ncrypt": "dev-main",
     "php_modules/path": "dev-main",
     "php_modules/plural": "dev-main",
-    "php_modules/project-map": "dev-main",
     "php_modules/request-input": "dev-main",
     "php_modules/sami-tokens": "dev-main",
     "php_modules/singular": "dev-main",
