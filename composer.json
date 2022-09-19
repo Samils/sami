@@ -1,0 +1,91 @@
+{
+  "name": "php_modules/sami",
+  "version": "1.0.0",
+  "description": "Samils",
+  "type": "library",
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Application\\": "src/",
+      "Sammy\\": "Sammy/",
+      "Sami\\": "src/",
+      "App\\": "src/"
+    },
+
+    "psr-0": {
+      "Application\\": "src/",
+      "Sammy\\": "Sammy/",
+      "Sami\\": "src/",
+      "App\\": "src/"
+    },
+
+    "classmap": [
+      "src/middlewares",
+      "src/modules"
+    ],
+
+    "files": [
+      "autoload.php"
+    ]
+  },
+  "keywords": [
+    "Samils",
+    "Sami"
+  ],
+  "homepage": "https://github.com/samils/sami",
+  "readme": "./README.md",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Agostinho Lopes",
+      "email": "agostinhosaml832@gmail.com",
+      "homepage": "https://agostinhosamil.github.io",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "base.samils@gmail.com",
+    "issues": "https://github.com/samils/sami/issues",
+    "wiki": "https://github.com/samils/sami/wiki"
+  },
+  "require": {
+    "php_modules/application-server": "dev-main",
+    "php_modules/application-server-error-handler": "dev-main",
+    "php_modules/application-server-view-engine-manager": "dev-main",
+    "php_modules/application-storage": "dev-main",
+    "php_modules/array-full-merge": "dev-main",
+    "php_modules/capsule": "dev-main",
+    "php_modules/createfunction": "dev-main",
+    "php_modules/dotenv": "dev-main",
+    "php_modules/file-content-getter": "dev-main",
+    "php_modules/format": "dev-main",
+    "php_modules/fs": "dev-main",
+    "php_modules/gogue-plugin-config-compiler": "dev-main",
+    "php_modules/http": "dev-main",
+    "php_modules/include-all": "dev-main",
+    "php_modules/kery": "dev-main",
+    "php_modules/lorem-ipsum": "dev-main",
+    "php_modules/mysql": "dev-main",
+    "php_modules/ncrypt": "dev-main",
+    "php_modules/path": "dev-main",
+    "php_modules/plural": "dev-main",
+    "php_modules/project-map": "dev-main",
+    "php_modules/request-input": "dev-main",
+    "php_modules/sami-tokens": "dev-main",
+    "php_modules/singular": "dev-main",
+    "php_modules/strarray": "dev-main",
+    "php_modules/trace-datas": "dev-main",
+    "php_modules/types-by-extension": "dev-main",
+    "php_modules/view-engine": "dev-main",
+    "php_modules/xm1rray": "dev-main",
+    "php_modules/yaml-lite": "dev-main",
+
+    "samils/application-bootstrapper": "dev-main",
+    "samils/application-config": "dev-main",
+    "samils/callable-object": "dev-main",
+    "samils/klass-props": "dev-main",
+    "samils/samils-component-functions": "dev-main",
+    "samils/samils-component-http-controllerset": "dev-main",
+    "samils/samils-component-saml": "dev-main",
+  }
+}
