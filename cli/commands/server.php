@@ -49,6 +49,7 @@ namespace Sammy\Packs\Sami\Cli {
         $port = $props ['port'];
       }
 
+      $path = requires ('path');
       $format = requires ('format');
       $ipconfig = requires ('ipconfig');
 
@@ -79,18 +80,18 @@ namespace Sammy\Packs\Sami\Cli {
       #  ("\n - \033[1;32mRunning on http:/") .
       #  ("/localhost:{$port}.\033[0m\n\n")
       #);
-      $message = $format->format ($welcome_message,
-        "Running on http://localhost:{$port}"
-      );
+      $message = $format->format ($welcome_message, "Running on http://localhost:{$port}");
 
       Debugger::log ($message);
 
       print ($message);
 
-      $ipList = ["php -S 127.0.0.1:{$port} public/index.php"];
+      $rootDir = $path->join ('~', 'public');
+
+      $ipList = ["php -S 127.0.0.1:{$port} {$rootDir}/index.php"];
 
       foreach ($ipV4Addresses as $ip) {
-        array_push ($ipList, "php -S {$ip}:{$port} public/index.php");
+        array_push ($ipList, "php -S {$ip}:{$port} {$rootDir}/index.php");
       }
 
       $command = join (' | ', $ipList);
