@@ -32,6 +32,7 @@
  */
 namespace Sammy\Packs\Sami\RouteDatas {
   use Sammy\Packs\KlassProps;
+  use Sammy\Packs\Sami\Runner;
   /**
    * Make sure the module base internal trait is not
    * declared in the php global scope defore creating
@@ -67,5 +68,67 @@ namespace Sammy\Packs\Sami\RouteDatas {
       'path' => null,
       'routelist' => null
     ];
+
+    /**
+     * @method array|boolean GetRouteTemplateDatas
+     *
+     * @param array $requestDatas request datas
+     *
+     * [
+     *   route  => string
+     *   method => string
+     * ]
+     */
+    public static function GetRouteTemplateDatas (array $requestDatas) {
+      $route = new static;
+
+      $runner = new Runner;
+
+      $app = $runner->getApp ();
+
+      if (!$app) {
+        return [false, 0];
+      }
+
+      $route->path = $requestDatas ['route'];
+      $route->routeList = $app->ApplicationRoutesList (
+        $requestDatas ['method']
+      );
+
+      # Route Template
+      $routeTemplateDatas = $route->getTemplateDatas ();
+
+      if ($routeTemplateDatas) {
+        return [$routeTemplateDatas, $route];
+      }
+
+      return [false, 0];
+    }
+
+    /**
+     * @method boolean RouteExists
+     */
+    public static function RouteExists ($route) {
+      $defaultRouteDatas = [
+        'method' => '@get',
+        'route'  => null
+      ];
+
+      if (is_string ($route)) {
+        $routeDatas = array_merge ($defaultRouteDatas, [
+          'route' => $route
+        ]);
+      } elseif (is_array ($route)) {
+        $routeDatas = array_merge ($defaultRouteDatas, $route);
+      }
+
+      if (isset ($routeDatas)) {
+        $routeTemplateDatas = self::GetRouteTemplateDatas ($routeDatas);
+
+        return ($routeTemplateDatas [0]) ? true : false;
+      }
+
+      return false;
+    }
   }}
 }

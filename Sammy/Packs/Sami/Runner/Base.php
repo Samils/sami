@@ -68,29 +68,24 @@ namespace Sammy\Packs\Sami\Runner {
    */
   trait Base {
     /**
+     * @var Controller $app
+     */
+    private static $app;
+
+    /**
      * @method void runApp
      */
     public function runApp (Controller $app = null) {
       $middlewareDatas = array ();
       $requestDatas = requires ('<moduleRootDir>/@rd');
 
-      #$route = $requestDatas [ 'route' ];
-
-      #$app = $this->mod ();
-      $route = new RouteDatas;
-
-      $route->path = $requestDatas ['route'];
-      $route->routeList = $app->ApplicationRoutesList (
-        $requestDatas ['method']
-      );
-
-      #exit ($route->path);
+      $this->setApp ($app);
 
       # Route Template
-      $routeTemplateDatas = $route->getTemplateDatas ();
+      list ($routeTemplateDatas, $route) = RouteDatas::GetRouteTemplateDatas ($requestDatas);
 
       if ( !$routeTemplateDatas ) {
-        Error::NoRoute ($requestDatas ['method'], $route->path);
+        Error::NoRoute ($requestDatas ['method'], $requestDatas ['route']);
       }
 
       $routeTrace = !isset ($routeTemplateDatas ['trace']) ? [] : (
@@ -210,6 +205,17 @@ namespace Sammy\Packs\Sami\Runner {
           )
         );
       }
+    }
+
+    /**
+     * @method void setApp
+     */
+    private function setApp (Controller $app) {
+      self::$app = $app;
+    }
+
+    public function getApp () {
+      return self::$app;
     }
   }}
 }
