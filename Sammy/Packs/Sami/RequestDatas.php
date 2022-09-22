@@ -150,22 +150,22 @@ namespace Sammy\Packs\Sami {
     public static function QueryString () {
       $server = self::GetRequestRawDatas ();
 
-      $qs = null;
+      $rawQueryString = "";
 
       if (isset ($server ['QUERY_STRING'])
         && is_string ($server ['QUERY_STRING'])) {
-        $qs = (string)($server ['QUERY_STRING']);
+        $rawQueryString = (string)($server ['QUERY_STRING']);
       }
 
       $queryString = [];
-      $qs_arr = preg_split ( '/&+/', $qs );
-      $qs_arr_count = count ($qs_arr);
+      $rawQueryStringArr = preg_split ( '/&+/', $rawQueryString );
+      $rawQueryStringArrCount = count ($rawQueryStringArr);
 
-      for ($i = 0; $i < $qs_arr_count; $i++) {
+      for ($i = 0; $i < $rawQueryStringArrCount; $i++) {
         $key_re = '/^([^=]+)=*/';
 
-        if (preg_match ($key_re, $qs_arr [$i], $key_arr)) {
-          $val = preg_replace ($key_re, '', $qs_arr [$i]);
+        if (preg_match ($key_re, $rawQueryStringArr [$i], $key_arr)) {
+          $val = preg_replace ($key_re, '', $rawQueryStringArr [$i]);
           $queryString [trim ($key_arr [1])] = $val;
         }
       }
