@@ -31,6 +31,7 @@
  * SOFTWARE.
  */
 namespace Sammy\Packs\Sami\Debugger {
+  use Sammy\Packs\Path;
   /**
    * Make sure the module base internal trait is not
    * declared in the php global scope defore creating
@@ -69,7 +70,7 @@ namespace Sammy\Packs\Sami\Debugger {
         'log-',
         date ('HisYmd'),
         time (),
-        preg_replace ('/[^a-zA-Z0-9_\-\.\$\%]/', '', base64_encode(random_bytes(21))), '.log'
+        preg_replace ('/[^a-zA-Z0-9_\-\.\$\%]/', '', base64_encode (random_bytes(21))), '.log'
       ]);
 
       $format = requires ('format');
@@ -89,8 +90,12 @@ namespace Sammy\Packs\Sami\Debugger {
 
       #$message = $format->format ("{|color:$messageColor}", $message);
 
+      $path = new Path;
+
+      $rootDir = $path->join ('~');
+
       $logFilePath = join (DIRECTORY_SEPARATOR, [
-        realpath (null), 'log', 'idebugger', $logFileName
+        $rootDir, 'log', 'idebugger', $logFileName
       ]);
 
       if (!is_dir (dirname ($logFilePath))) {
