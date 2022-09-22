@@ -75,7 +75,7 @@ namespace Sammy\Packs\Sami\Base\Model {
      */
     private $cols = array ();
 
-    private final function scopeDefined () {
+    private function scopeDefined () {
       $model = self::ModelName ();
 
       #echo $model, '<br /><pre>';
@@ -89,7 +89,7 @@ namespace Sammy\Packs\Sami\Base\Model {
       );
     }
 
-    private final function fill_props () {
+    private function fill_props () {
       $model = self::ModelName ();
 
       #echo $model, '<br /><pre>';
@@ -121,7 +121,7 @@ namespace Sammy\Packs\Sami\Base\Model {
       }
     }
 
-    private static final function constructingFromController () {
+    private static function constructingFromController () {
       $backTrace = func_num_args() >= 1 ? func_get_arg(0) : null;
 
       if ( $backTrace && is_array ($backTrace) ) {
@@ -157,7 +157,7 @@ namespace Sammy\Packs\Sami\Base\Model {
      * [__construct description]
      * @param array $datas
      */
-    public final function __construct ($datas = []) {
+    public function __construct ($datas = []) {
       $args = func_get_args ();
       $backTrace = debug_backtrace ();
       $model = self::ModelName ();
@@ -171,15 +171,15 @@ namespace Sammy\Packs\Sami\Base\Model {
       call_user_func_array ([$this, 'setDatas'], $args);
     }
 
-    public final function __isset ($data) {
+    public function __isset ($data) {
       return $this->dataExists ($data);
     }
 
-    public final function __toString () {
+    public function __toString () {
       return str ( $this->lean () );
     }
 
-    public final function save () {
+    public function save () {
       $datas = $this->leanDatas ();
 
       if (!is_null ($this->id)) {
@@ -207,7 +207,7 @@ namespace Sammy\Packs\Sami\Base\Model {
      * @param  array  $datas
      * @return boolean
      */
-    public final function update_attributes ($datas = []) {
+    public function update_attributes ($datas = []) {
       $this->change_attributes ( $datas );
       return ($this->save ());
     }
@@ -217,7 +217,7 @@ namespace Sammy\Packs\Sami\Base\Model {
      * @param  array  $datas
      * @return null
      */
-    public final function change_attributes ($datas = []) {
+    public function change_attributes ($datas = []) {
       if (is_array ($datas)) {
         foreach ($datas as $data => $value) {
           $d = lower($data);
@@ -229,7 +229,7 @@ namespace Sammy\Packs\Sami\Base\Model {
       }
     }
 
-    public final function auto_destroy () {
+    public function auto_destroy () {
       if (is_null ($this->id))
         return;
 

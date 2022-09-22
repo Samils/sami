@@ -39,7 +39,7 @@ namespace Sammy\Packs\Sami\Rae\TemplateResolve {
      * @param  string $template
      * @return string
      */
-    public final function resolve ($template = '') {
+    public function resolve ($template = '') {
       $template = $this->pathName ($template);
         # View Engine Datas
       $ved = ApplicationServerHelpers::conf (
@@ -104,7 +104,7 @@ namespace Sammy\Packs\Sami\Rae\TemplateResolve {
      * @param  string $template
      * @return string
      */
-    public final function pathName ($template = '') {
+    public function pathName ($template = '') {
       $template = str ($template);
 
       $arrPathName = [];

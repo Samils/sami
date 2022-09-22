@@ -67,7 +67,7 @@ namespace Sammy\Packs\Sami\Router {
      * @param  Response $res
      * @return null
      */
-    public final function __invoke (Request $req, Response $res) {
+    public function __invoke (Request $req, Response $res) {
       /**
        * [$routes description]
        * @var array

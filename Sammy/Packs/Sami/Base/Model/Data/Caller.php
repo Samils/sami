@@ -72,7 +72,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
      * @param  array  $args
      * @return mixed
      */
-    public final function __call ($meth = '', $args = []) {
+    public function __call ($meth = '', $args = []) {
       $meth = str ($meth);
       $args = !is_array($args) ? [] : (
         $args

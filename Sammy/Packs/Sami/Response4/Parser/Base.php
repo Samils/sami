@@ -62,7 +62,7 @@ namespace Sammy\Packs\Sami\Response4\Parser {
      * Verify if a given response data in a mimeType
      * should be parsed by the current parser object.
      */
-    public final function mayParseResponse ($responseMimeType) {
+    public function mayParseResponse ($responseMimeType) {
       if (!is_array ($this->mimeTypes)) return false;
       /**
        * map each supported mime type in the '$mimeTypes'

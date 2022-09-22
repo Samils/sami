@@ -62,7 +62,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
      *
      * @param [type] $datas
      */
-    public final function setDatas ($datas = null) {
+    public function setDatas ($datas = null) {
       if (is_array ($datas) && $datas) {
         foreach ($datas as $data => $value) {
           $this->setData ($data, $value);
@@ -89,7 +89,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
      * @param string $data
      * @param [type] $value
      */
-    public final function setData ($data = '', $value = null) {
+    public function setData ($data = '', $value = null) {
       if (!(is_string($data) && is_right_var_name ($data)))
         return;
 
@@ -120,7 +120,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
      * @param string $prop
      * @param mixed $value
      */
-    public final function __set ($prop, $value) {
+    public function __set ($prop, $value) {
       return $this->setData ( $prop, $value );
     }
   }}

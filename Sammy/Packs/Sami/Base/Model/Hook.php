@@ -72,7 +72,7 @@ namespace Sammy\Packs\Sami\Base\Model {
      * @author Sammy
      * @return boolean
      */
-    public static final function addHook ($hookName, $deleteOnHandle = false) {
+    public static function addHook ($hookName, $deleteOnHandle = false) {
       $handler = func_get_arg (func_num_args() - 1);
       $deleteOnHandle = !is_bool($deleteOnHandle) ? false : (
         $deleteOnHandle

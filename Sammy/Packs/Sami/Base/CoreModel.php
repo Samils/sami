@@ -112,7 +112,7 @@ namespace Sammy\Packs\Sami\Base {
      * [CallStatic description]
      * @return [type] [description]
      */
-    public static final function __callStatic ($meth, $args) {
+    public static function __callStatic ($meth, $args) {
       $meth = str ($meth);
       # The called class
       # Contains the model

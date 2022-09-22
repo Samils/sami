@@ -67,7 +67,7 @@ namespace Sammy\Packs\Sami {
     /**
      * @method void Execute
      */
-    public static final function Execute () {
+    public static function Execute () {
       $cli = requires ('sami/cli');
 
       $root = module::getModuleRootDir (__DIR__);

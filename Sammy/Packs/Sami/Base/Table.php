@@ -72,7 +72,7 @@ namespace Sammy\Packs\Sami\Base {
      * [__construct description]
      * @param string $name [description]
      */
-    public final function __construct ($name = '') {
+    public function __construct ($name = '') {
       $this->props ['@name'] = $name;
 
       if (!in_array (strtolower ($name), self::$Tables)) {
@@ -80,7 +80,7 @@ namespace Sammy\Packs\Sami\Base {
       }
     }
 
-    public final function __call ($meth, $arguments) {
+    public function __call ($meth, $arguments) {
       $meth = strtolower ($meth);
 
       $colsType = self::columnTypes ();

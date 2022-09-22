@@ -151,7 +151,7 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
      * [validates description]
      * @return mixed
      */
-    public static final function Validates () {
+    public static function Validates () {
       # Validate the function call
       # reference
       if (static::validateReference ()) {

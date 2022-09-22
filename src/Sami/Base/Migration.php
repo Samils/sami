@@ -65,21 +65,21 @@ namespace Sami\Base {
      */
     private $trace = [];
 
-    public final function __construct () {}
+    public function __construct () {}
 
-    public final function setTrace ($trace) {
+    public function setTrace ($trace) {
       if (!!(is_array ($trace) && $trace)) {
         $this->trace = $trace [0];
       }
     }
 
-    public final function getFile () {
+    public function getFile () {
       if (isset ($this->trace ['file'])) {
         return (string) ($this->trace ['file']);
       }
     }
 
-    public final function getTableName () {
+    public function getTableName () {
       if (isset ($this->trace ['args']) &&
           count ($this->trace['args'])) {
         $singular = new Singular;
@@ -88,11 +88,11 @@ namespace Sami\Base {
       }
     }
 
-    public final function getFileName () {
+    public function getFileName () {
       return File::Name ($this->getFile ());
     }
 
-    public final static function ConfigTrace ($backTrace) {
+    public static function ConfigTrace ($backTrace) {
       $trace1 = isset ($backTrace[1]) ? $backTrace[1] : [];
 
       if (isset ($trace1 ['class'])) {

@@ -60,7 +60,7 @@ namespace Sammy\Packs\Sami\Module {
     /**
      * @method mixed|void __call
      */
-    public final function __call ($meth, $arguments) {
+    public function __call ($meth, $arguments) {
       $calledClassName = strtolower (static::class);
 
       if (isset (self::$ApplicationModuleBase [$calledClassName])) {

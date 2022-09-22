@@ -67,7 +67,7 @@ namespace Sammy\Packs\Sami\Cli {
      * prepare it to run setting the
      * dependencies up
      */
-    public static final function Running () {
+    public static function Running () {
       if (php_sapi_name () === 'cli') {
         if (self::$running) {
           return false;

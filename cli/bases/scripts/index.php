@@ -36,7 +36,7 @@ namespace Sammy\Packs\Sami\Cli {
          * @param  array  $args
          * @return null
          */
-        public final function tryRunningScript ($script, $args = []) {
+        public function tryRunningScript ($script, $args = []) {
         	/**
         	 * [$moduleConfs description]
         	 * @var array
@@ -79,7 +79,7 @@ namespace Sammy\Packs\Sami\Cli {
          * @param  array  $args
          * @return null
          */
-        private final function runnScript ($command = '', $args = []) {
+        private function runnScript ($command = '', $args = []) {
         	if (!(is_string($command) && $command))
         		return;
 
@@ -105,7 +105,7 @@ namespace Sammy\Packs\Sami\Cli {
          * @param  array  $args
          * @return null
          */
-        private final function runnScripts ($commandList = '', $args = []) {
+        private function runnScripts ($commandList = '', $args = []) {
         	if (!(is_array($commandList) && $commandList))
         		return;
 

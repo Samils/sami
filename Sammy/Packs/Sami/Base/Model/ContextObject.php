@@ -132,7 +132,7 @@ namespace Sammy\Packs\Sami\Base\Model {
       }
     }
 
-    public final function __construct ($name, $columns = null) {
+    public function __construct ($name, $columns = null) {
       $this->props ['@name'] = strtolower ($name);
 
       $cols = array_merge ($columns, $this->props ['@cols']);
@@ -141,7 +141,7 @@ namespace Sammy\Packs\Sami\Base\Model {
       $this->props ['@cols'] = $cols;
     }
 
-    public final function __call ($meth, $args) {
+    public function __call ($meth, $args) {
       $meth = strtolower ($meth);
       $model = $this->props ['@name'];
       /**

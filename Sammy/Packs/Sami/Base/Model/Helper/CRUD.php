@@ -700,7 +700,7 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
      * @param  array  $set
      * @return boolean
      */
-    public final static function __updateById ($id = null, $set = []) {
+    public static function __updateById ($id = null, $set = []) {
       return self::update (array_merge ($set, ['where()' => ['id' => $id]]));
     }
 
@@ -710,7 +710,7 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
      * @param  array  $set
      * @return boolean
      */
-    public final static function __updateByKey ($key = null, $set = []) {
+    public static function __updateByKey ($key = null, $set = []) {
       return self::update (array_merge ($set, ['where()' => ['key' => $key]]));
     }
 

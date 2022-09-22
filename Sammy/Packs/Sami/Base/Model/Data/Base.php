@@ -61,7 +61,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
     use Getter;
     use Caller;
 
-    public final function leanDatas () {
+    public function leanDatas () {
       $datas = array ();
       $props = array_keys ($this->props);
       $propsCount = count ($props);
@@ -77,7 +77,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
       return $datas;
     }
 
-    public final function lean () {
+    public function lean () {
       $props = array ();
       $colsCount = count ($this->cols);
 
@@ -108,7 +108,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
       return $props;
     }
 
-    private static final function ModelAttributes () {
+    private static function ModelAttributes () {
       $modelObject = self::ModelObject ();
       # Get the model object
       # from the global model

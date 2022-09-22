@@ -72,7 +72,7 @@ namespace Sammy\Packs\Sami {
      * the current module object.
      *
      */
-    public final function __construct ($props = []) {
+    public function __construct ($props = []) {
       /**
        *
        * Make sure the sent '$props' argument is an
