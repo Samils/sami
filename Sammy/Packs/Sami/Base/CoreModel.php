@@ -145,13 +145,9 @@ namespace Sammy\Packs\Sami\Base {
       $reRead = '/^read([a-zA-Z0-9_]+)$/i';
 
       if (preg_match ($reFindBy, $meth, $match)) {
-        $fieldName = lower (preg_replace ('/^(findBy)/', '',
-          $meth
-        ));
+        $fieldName = lower (preg_replace ('/^(findBy)/', '', $meth));
 
-        $filedValue = !isset ($args [0]) ? null : (
-          $args [ 0 ]
-        );
+        $filedValue = !isset ($args [0]) ? null : $args [0];
 
         $modelFields = self::ModelAttributes ();
 

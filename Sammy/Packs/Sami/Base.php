@@ -73,7 +73,7 @@ namespace Sammy\Packs\Sami {
     /**
      * @var boolean
      */
-    private static $connectionFirstInteraction = true;
+    private static $databaseConnected = false;
 
     /**
      * @var boolean
@@ -121,7 +121,7 @@ namespace Sammy\Packs\Sami {
       }
 
       /**
-       * [$connectionFirstInteraction description]
+       * [$databaseConnected description]
        * @var boolean
        */
       self::$SamiBaseFirstInstance = false;
@@ -129,9 +129,9 @@ namespace Sammy\Packs\Sami {
     }
 
     public function connect () {
-      if (!self::$connectionFirstInteraction)
-        exit ('Database connection is already done');
-
+      if (self::$databaseConnected) {
+        return;
+      }
       # Driver man
       # The sami-base module that manages
       # the comunication with a specific
@@ -158,16 +158,14 @@ namespace Sammy\Packs\Sami {
       self::configureApplicationModels ();
 
       /**
-       * [$connectionFirstInteraction description]
+       * [$databaseConnected description]
        * @var boolean
        */
-      self::$connectionFirstInteraction = false;
+      self::$databaseConnected = !false;
     }
 
     public function conn () {
-      return call_user_func_array (
-        [$this, 'connect'], func_get_args()
-      );
+      return call_user_func_array ([$this, 'connect'], func_get_args ());
     }
 
     public static function SchemaVersionFile () {
@@ -192,17 +190,9 @@ namespace Sammy\Packs\Sami {
 
       self::LoadPrimaryDatabaseSchema ();
 
-      #if (!in_array (php_sapi_name (), ['cli'])) {
-      #  return MigrationsSchema::Configure ();
-      #}
-
-      #$tables = Base\Table::All ();
-
-      #print_r($tables);
-
-      #exit ('llaks');
-
-      dir_boot (path ('@db/migrations'));
+      if (in_array (php_sapi_name (), ['cli'])) {
+        dir_boot (path ('@db/migrations'));
+      }
     }
 
     public static function getAdapterInstance () {
@@ -211,17 +201,10 @@ namespace Sammy\Packs\Sami {
 
     public static function baseConfig () {
       self::loadSamiBaseModelFiles ();
+    }
 
-      $autoConnectSamiBaseSettings = ( boolean )(
-        isset (self::$config) &&
-        is_array (self::$config) &&
-        isset (self::$config[ 'auto_connect' ]) && (
-          is_bool (self::$config[ 'auto_connect' ]) &&
-          self::$config[ 'auto_connect' ]
-        )
-      );
-
-      if ( $autoConnectSamiBaseSettings ) {
+    public static function baseConnect () {
+      if (is_object (self::$sel)) {
         self::$sel->connect ();
       }
     }
@@ -250,9 +233,6 @@ namespace Sammy\Packs\Sami {
       # model...
       # ...
       $tables = Base\Table::All ();
-
-      #echo 'Table => <pre>'; print_r($tables);
-      #exit ('</pre>');
 
       foreach ($tables as $table => $props) {
         if ($model = self::modelClassExists ($table)) {

@@ -230,9 +230,6 @@ namespace Sammy\Packs\Sami\Base\Table {
             isset ($columnProps ['reference'])) {
             $columnReference = Migrator::readReference ($columnProps ['reference']);
 
-            #echo "\nCol => ", $columnName, "\n";
-            #print_r($columnReference);
-
             if (is_array ($columnReference) &&
               isset ($columnReference [1]) &&
               $columnReference [1] === $referenceTable) {
@@ -255,7 +252,6 @@ namespace Sammy\Packs\Sami\Base\Table {
 
     public static function Drop ($table) {
       if ($conn = self::validateRef ()) {
-        #echo "\nDrop Table => $table\n";
         $conn->dropTable ($table);
       }
     }

@@ -34,6 +34,7 @@ namespace Sammy\Packs\Sami\Base\Cli {
   use Sammy\Packs\Sami\CommandLineInterface\Template;
   use Sammy\Packs\Sami\CommandLineInterface\Console;
   use Application\Model\SchemaMigration;
+  use Sammy\Packs\Sami\Base as Sbr;
   use Sammy\Packs\Sami\Base\Table;
   use Sammy\Packs\Sami\Base;
   use Sami\Base\Migration;
@@ -71,9 +72,13 @@ namespace Sammy\Packs\Sami\Base\Cli {
 
     /**
      * [migrate description]
+     *
      * @return [type] [description]
      */
     public static function Migrate () {
+
+      Sbr::SetUpSchema ();
+
       # Get whole the declared classes until
       # the current moment, in order filtering
       # the migrations classes to manually
@@ -339,30 +344,11 @@ namespace Sammy\Packs\Sami\Base\Cli {
             $referalTables
           );
 
-          #print_r($referalTables);
-          #echo "\n\n\n", $table, "\n\n\n";
           Table::Create ($table, $structure);
         }
       }
 
       self::GenerateSchemaFile ($t);
-
-      /**
-      Console::Log ("\n\nGenerating database map...\n\n");
-      self::updateSchemaVersion ($t);
-
-      Template::Generate ('schema-file-lines', [
-        'target' => 'db',
-        'props' => [
-          'name' => 'schema',
-          'version' => $t,
-          'body' => join ("\n", $schemaFileLines)
-        ]
-      ]);
-      */
-
-      # Update Schema File
-      #$schema->writeLines ($schemaFileLines);
     }
   }}
 }
