@@ -178,8 +178,6 @@ namespace Sammy\Packs\Sami\Base\Table {
       if (isset (self::$Store [$table][$oldName])) {
         unset (self::$Store [$table][$oldName]);
 
-        #print_r($props);
-
         self::$Store [$table][$newName] = $props;
       }
     }
