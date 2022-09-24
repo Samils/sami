@@ -56,7 +56,13 @@ namespace Sammy\Packs\Sami\Cli {
 
       $ipConfig = $ipconfig->getIpConfig ();
 
-      $ipV4Addresses = @$ipConfig ['iPv4Address'];
+      $ipV4Addresses = [];
+
+      if (is_array ($ipConfig)
+        && is_array (@$ipConfig ['iPv4Address'])
+        && @$ipConfig ['iPv4Address']) {
+        $ipV4Addresses = @$ipConfig ['iPv4Address'];
+      }
 
       $welcome_message = join ("\n", ['',
         '- Samils Development Server',
