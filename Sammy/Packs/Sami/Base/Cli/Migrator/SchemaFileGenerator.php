@@ -34,6 +34,7 @@ namespace Sammy\Packs\Sami\Base\Cli\Migrator {
   use Sammy\Packs\Sami\CommandLineInterface\Template;
   use Sammy\Packs\Sami\CommandLineInterface\Console;
   use Sammy\Packs\Sami\Base\Table;
+  use Sami\Base\Schema;
   /**
    * Make sure the module base internal trait is not
    * declared in the php global scope defore creating
@@ -84,14 +85,20 @@ namespace Sammy\Packs\Sami\Base\Cli\Migrator {
 
       $tables = Table::All ();
 
-      foreach ($tables as $table => $structure) {
-        $structure_str = self::stringifyModelStructure (
-          $structure
-        );
+      foreach ($tables as $tableName => $structure) {
+
+        $schemaPrimaryTables = Schema::GetPrimaryList ();
+
+        if (is_array ($schemaPrimaryTables)
+          && in_array ($tableName, $schemaPrimaryTables)) {
+          continue;
+        }
+
+        $structure_str = self::stringifyModelStructure ($structure);
 
         $schemaFileLines = array_merge ($schemaFileLines, [
           join ('', [
-            "\t\tcreate_table ('{$table}', ",
+            "\t\tcreate_table ('{$tableName}', ",
             $structure_str,
             ");\n"
           ])
