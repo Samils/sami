@@ -78,11 +78,6 @@ namespace Sammy\Packs\Sami\Base {
     public static function InitModelConfigurations ($props = []) {
       $model = self::ModelName ();
 
-      #echo 'MODEL => ', $model, '<br /><br />', '<pre>';
-      #print_r($props);
-      #echo '</pre><br /><br />';
-
-
       self::$obmodels [$model] = new Model\ContextObject ($model, $props);
 
       $modelObject = new static;
