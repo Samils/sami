@@ -22,7 +22,7 @@ namespace Sammy\Packs\Sami\Rae {
     # Response
     # Sammy\Packs\HTTP\Response object
     $res = new Response;
-    $template = $args['Template'];
+    $template = $args ['Template'];
     $middlewareDatas = [];
 
     if (!isset ($args ['middlewareDatas'])) {
@@ -31,7 +31,7 @@ namespace Sammy\Packs\Sami\Rae {
 
     $controllerResolve = new ControllerResolve;
     $controllerActionHandler = new ControllerActionHandler;
-    $uncontrolledActionHandler = new UncontrolledActionhandler;
+    $uncontrolledActionHandler = new UncontrolledActionHandler;
 
     if (!preg_match ('/^(@+)/', $template)) {
       $uncontrolledActionHandler->handle ($template);
@@ -62,12 +62,11 @@ namespace Sammy\Packs\Sami\Rae {
     if (in_array ('V', ApplicationServerHelpers::conf ('flux'))) {
 
       $templateResolve = new TemplateResolve;
-      #exit ($template);
 
       $viewTemplateDatas = $templateResolve->resolve ($template);
       $templateDatas = null;
 
-      if ( is_array ($viewTemplateDatas) ) {
+      if (is_array ($viewTemplateDatas)) {
         $templateDatas = array (
           'template' => $viewTemplateDatas,
           'responseData' => $responseDataObject
