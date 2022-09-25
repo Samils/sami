@@ -42,11 +42,11 @@ namespace Sammy\Packs\Sami\Rae {
    * when trying to run the current command by the cli
    * API.
    */
-  if (!class_exists('Sammy\Packs\Sami\Rae\UnControlledActionHandler')){
+  if (!class_exists('Sammy\Packs\Sami\Rae\UncontrolledActionHandler')){
   /**
-   * @class UnControlledActionHandler
+   * @class UncontrolledActionHandler
    * Base internal class for the
-   * UnControlledActionHandler module.
+   * UncontrolledActionHandler module.
    * -
    * This is (in the ils environment)
    * an instance of the php module,
@@ -59,12 +59,12 @@ namespace Sammy\Packs\Sami\Rae {
    * and boot it by using the ils directory boot.
    * -
    */
-  class UnControlledActionHandler {
+  class UncontrolledActionHandler {
     /**
      * @method void handle
      */
     public function handle ($uncontrolledAction = null) {
-      $response4 = requires ('sami/response4');
+      $response4 = requires ('@HOME/response4');
 
       if (function_exists ($uncontrolledAction)) {
         $request = new Request;
