@@ -110,7 +110,7 @@ namespace Sammy\Packs\Sami\Runner {
       }
 
       # reference datas
-      $ref_datas = [
+      $referenceDatas = [
         'template' => null,
         'params' => null,
         'matches' => null
@@ -118,57 +118,49 @@ namespace Sammy\Packs\Sami\Runner {
 
       $routeTemplateDatas ['template'] = isset ($routeTemplateDatas ['template']) ? $routeTemplateDatas ['template'] : null;
 
-      $t = new Param ();
+      $paramContext = new Param ();
       # Switch 'template' property
       # from the '$rt' variable
       # in order getting the given
       # reference for the current route
       if (is_array ($routeTemplateDatas ['template'])) {
-        $ref_datas ['template'] = $routeTemplateDatas ['template']['template'];
+        $referenceDatas ['template'] = $routeTemplateDatas ['template']['template'];
 
         if (isset ($routeTemplateDatas ['match']) && $routeTemplateDatas ['match']) {
-          $ref_datas ['matches'] = !isset ($routeTemplateDatas ['matches']) ? null : ($routeTemplateDatas ['matches']);
+          $referenceDatas ['matches'] = !isset ($routeTemplateDatas ['matches']) ? null : ($routeTemplateDatas ['matches']);
         }
       } elseif (is_string ($routeTemplateDatas ['template']) || is_func ($routeTemplateDatas ['template'])) {
-        $ref_datas ['template'] = $routeTemplateDatas ['template'];
+        $referenceDatas ['template'] = $routeTemplateDatas ['template'];
       } elseif ($routeTemplateDatas ['template'] instanceof Param) {
-        $t = $routeTemplateDatas ['template'];
-        $ref_datas ['template'] = $t->getTemplate ();
-        $ref_datas ['params'] = $t;
+        $paramContext = $routeTemplateDatas ['template'];
+        $referenceDatas ['template'] = $paramContext->getTemplate ();
+        $referenceDatas ['params'] = $paramContext;
       }
 
-      ParamContextBootstrapper::BootstrapParamContext ($t);
-      #\php\requires ('./live_paramcl', $t);
-
-      # end switch
-      # \Sammy\Packs\HTTP\Request
-
-      #echo 'Reference datas:<br/><pre>';
-      #print_r($ref_datas);
-      #echo '</pre>';
+      ParamContextBootstrapper::BootstrapParamContext ($paramContext);
 
       # Verify if the 'matches' index
-      # is inside the '$ref_datas' array
+      # is inside the '$referenceDatas' array
       # in order setting as a property for
       # the 'req' object sent to the action
       # being called from the request response
-      if (isset ($ref_datas ['matches'])) {
-        $req->setProperty ('matches', $ref_datas ['matches']);
+      if (isset ($referenceDatas ['matches'])) {
+        $req->setProperty ('matches', $referenceDatas ['matches']);
       }
 
       # Verify if the 'params' index
-      # is inside the '$ref_datas' array
+      # is inside the '$referenceDatas' array
       # in order setting as a property for
       # the 'req' object sent to the action
       # being called from the request response
-      if (isset ($ref_datas ['params'])) {
-        $req->setProperty ('params', $ref_datas ['params']);
+      if (isset ($referenceDatas ['params'])) {
+        $req->setProperty ('params', $referenceDatas ['params']);
       }
 
-      if (is_func ($ref_datas ['template'])) {
-        $func = $ref_datas ['template'] instanceof \Func ? (
-          $ref_datas ['template']
-        ) : func ($ref_datas ['template']);
+      if (is_func ($referenceDatas ['template'])) {
+        $func = $referenceDatas ['template'] instanceof \Func ? (
+          $referenceDatas ['template']
+        ) : func ($referenceDatas ['template']);
         $f = $func->getCallback ();
 
         $f1 = Closure::bind ($f, $app, get_class ($app));
@@ -183,7 +175,7 @@ namespace Sammy\Packs\Sami\Runner {
         $Rae = requires ('<moduleRootDir>/@rae');
 
         $rae = $Rae ([
-          'Template' => $ref_datas [ 'template' ],
+          'Template' => $referenceDatas [ 'template' ],
           'middlewareDatas' => $middlewareDatas
         ]);
 
@@ -199,7 +191,7 @@ namespace Sammy\Packs\Sami\Runner {
             $rae ['template'],
             [
               'layout' => 'application',
-              'action' => $ref_datas ['template'],
+              'action' => $referenceDatas ['template'],
               'responseData' => $rae ['responseData']
             ]
           )
