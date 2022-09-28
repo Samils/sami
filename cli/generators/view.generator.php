@@ -8,19 +8,29 @@ $module->exports = [
 
   'view.target' => 'app/views',
   'view.rename' => function ($name) {
-    return ucfirst ($name);
+    $name = preg_split ('/([\\\\\/]+)/', $name);
+
+    $nameSliceMapper = function ($slice) {
+      return camel2snakecase ($slice);
+    };
+
+    $name = join (DIRECTORY_SEPARATOR, array_map ($nameSliceMapper, $name));
+
+    return $name;
   },
 
   'view.props' => function ($props) {
-    $names = preg_split ('/\/+/', $props ['name']);
+    $names = preg_split ('/([\\\\\/]+)/', $props ['name']);
 
-    $componentName = $names [-1 + count ($names)];
+    $viewName = $names [-1 + count ($names)];
 
-    if (preg_match ('/^index$/i', $componentName) &&
-        isset ($names [-2 + count ($names)])) {
-      $componentName = $names [-2 + count ($names)];
+    $viewName = preg_replace ('/\-+/', '_', $viewName);
+
+    if (preg_match ('/^index$/i', $viewName)
+      && isset ($names [-2 + count ($names)])) {
+      $viewName = $names [-2 + count ($names)];
     }
 
-    return ['componentName' => ucfirst ($componentName)];
+    return ['viewName' => snake2camelcase ($viewName)];
   }
 ];
