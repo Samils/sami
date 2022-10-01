@@ -1,5 +1,3 @@
-@import { Fragment } from 'capsule'
-
 @def <?= $props ['viewName'] ?> ({ ...$props })
   <Fragment>
     <h1><?= $props ['viewName'] ?> view works..!</h1>

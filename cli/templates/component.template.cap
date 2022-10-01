@@ -1,5 +1,3 @@
-@import { Fragment } from 'capsule'
-
 @def <?= $props ['componentName'] ?> ({ ...$props })
   <Fragment>
     <h1><?= $props ['componentName'] ?> component works..!</h1>
