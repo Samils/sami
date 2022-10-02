@@ -36,7 +36,7 @@ namespace Sammy\Packs\Sami\Rae {
   use Sammy\Packs\HTTP\Response;
   /**
    * Make sure the module base internal class is not
-   * declared in the php global scope defore creating
+   * declared in the php global scope before creating
    * it.
    * It ensures that the script flux is not interrupted
    * when trying to run the current command by the cli
@@ -50,7 +50,7 @@ namespace Sammy\Packs\Sami\Rae {
    * -
    * This is (in the ils environment)
    * an instance of the php module,
-   * wich should contain the module
+   * which should contain the module
    * core functionalities that should
    * be extended.
    * -
