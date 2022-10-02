@@ -79,9 +79,6 @@
 
     "samils/application-bootstrapper": "dev-main",
     "samils/application-config": "dev-main",
-    "samils/callable-object": "dev-main",
-    "samils/klass-props": "dev-main",
-    "samils/samils-component-functions": "dev-main",
     "samils/samils-component-http-controllerset": "dev-main",
     "samils/samils-component-saml": "dev-main"
   }
