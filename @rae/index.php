@@ -15,6 +15,8 @@ namespace Sammy\Packs\Sami\Rae {
   use Sammy\Packs\HTTP\Response;
   use Sammy\Packs\Samils\ApplicationServerHelpers;
 
+  use Sammy\Packs\Samils\ViewEngineSetup\setup_view_engine;
+
   $module->exports = new Func (function ($args) {
     # Request
     # Sammy\Packs\HTTP\Request Object
@@ -58,6 +60,10 @@ namespace Sammy\Packs\Sami\Rae {
     $responseDataObject = $controllerActionHandler->handle (
       $controllerObject, $action, $middlewareDatas
     );
+
+    if (function_exists (setup_view_engine::class)) {
+      call_user_func_array (setup_view_engine::class, [$controllerObject]);
+    }
 
     if (in_array ('V', ApplicationServerHelpers::conf ('flux'))) {
 
