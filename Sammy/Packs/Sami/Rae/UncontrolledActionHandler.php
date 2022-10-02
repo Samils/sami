@@ -42,7 +42,7 @@ namespace Sammy\Packs\Sami\Rae {
    * when trying to run the current command by the cli
    * API.
    */
-  if (!class_exists('Sammy\Packs\Sami\Rae\UncontrolledActionHandler')){
+  if (!class_exists ('Sammy\Packs\Sami\Rae\UncontrolledActionHandler')) {
   /**
    * @class UncontrolledActionHandler
    * Base internal class for the
