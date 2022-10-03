@@ -58,17 +58,14 @@ namespace Sammy\Packs\Sami\Cli {
       $config = requires ('~/config/build.yaml');
 
       $staticRoutePaths = array_map (function ($routePath) {
-        if (preg_match ('/^(\/[^\/]*)$/', $routePath)) {
-          return [$routePath, join ('/', [
-            preg_replace ('/(\/)+$/', '', $routePath),
-            'index.html'
-          ])];
-        }
+        #if (preg_match ('/^(\/[^\/]*)$/', $routePath)) {
+        #  return [$routePath, join ('/', [
+        #    preg_replace ('/(\/)+$/', '', $routePath),
+        #    'index.html'
+        #  ])];
+        #}
 
-        return [$routePath, join ('.', [
-          $routePath,
-          'html'
-        ])];
+        return trim ((string)$routePath);
       }, $staticRoutePaths);
 
       if (!(isset ($config ['outDir']) && is_string ($config ['outDir']) && is_dir ($config ['outDir']))) {
@@ -77,12 +74,25 @@ namespace Sammy\Packs\Sami\Cli {
 
       $config ['outDir'] = preg_replace ('/(\/)+$/', '', $config ['outDir']);
 
-      foreach ($staticRoutePaths as $staticRoute) {
-        list ($routePath, $staticRoutePath) = $staticRoute;
+      foreach ($staticRoutePaths as $routePath) {
+
+        $staticRoutePath = $routePath;
+
+        if (isset ($config ['files']) && is_array ($config ['files'])) {
+          $staticRoutePath = StaticGenerator::applyFileConfigList ($staticRoutePath, $config ['files']);
+        }
+
+        if (!preg_match ('/^(\/(.+))$/', $staticRoutePath)) {
+          $staticRoutePath = '/index';
+        }
+
+        if (!preg_match ('/(\.html)$/i', $staticRoutePath)) {
+          $staticRoutePath = join ('.', [$staticRoutePath, 'html']);
+        }
 
         $staticRoutePath = join ('', [
           $config ['outDir'],
-          $staticRoutePath
+          preg_replace ('/\/{2,}/', '/', $staticRoutePath)
         ]);
 
         if (!is_dir (dirname ($staticRoutePath))) {
