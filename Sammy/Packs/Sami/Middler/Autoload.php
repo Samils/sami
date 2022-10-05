@@ -31,6 +31,7 @@
  * SOFTWARE.
  */
 namespace Sammy\Packs\Sami\Middler {
+  use function Samils\dir_boot;
   /**
    * Make sure the module base internal trait is not
    * declared in the php global scope defore creating
@@ -61,7 +62,7 @@ namespace Sammy\Packs\Sami\Middler {
      * @method void Autuload
      */
     private static function Autoload () {
-      \Samils\dir_boot (__appdir . '/middlewares');
+      dir_boot (__appdir__ . '/middlewares');
     }
   }}
 }
