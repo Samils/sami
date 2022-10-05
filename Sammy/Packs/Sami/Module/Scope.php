@@ -76,7 +76,7 @@ namespace Sammy\Packs\Sami\Module {
         $trace1 = ( array )($backTrace [1]);
 
         if (isset ($trace1 ['class'])) {
-          if ($trace1 ['class'] === \ApplicationModule::class) {
+          if ($trace1 ['class'] === ApplicationModule::class) {
             self::$ApplicationModuleBase [ $moduleName ] = [];
           }
         }
