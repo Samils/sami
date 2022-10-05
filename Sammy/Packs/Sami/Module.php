@@ -102,10 +102,7 @@ namespace Sammy\Packs\Sami {
         $controllerName = preg_replace ('/(Controller)$/i', '', $controllerName);
 
         if (Application::IsController ($controllerName)) {
-          array_push (
-            self::$ApplicationModuleBase [$moduleName],
-            Application::Mod ($controllerName)
-          );
+          Scope::RegisterModuleController ($moduleName, Application::Mod ($controllerName));
         }
       }
     }
