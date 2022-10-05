@@ -65,7 +65,7 @@ namespace Sammy\Packs\Sami\Module {
      * @param string $moduleName [description]
      */
     public static function Register ($moduleName = '') {
-      $backTrace = debug_backtrace();
+      $backTrace = debug_backtrace ();
 
       if (!class_exists ($moduleName)) {
         self::NoModuleError ($backTrace[0], $moduleName);
