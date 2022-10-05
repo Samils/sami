@@ -31,6 +31,7 @@
  * SOFTWARE.
  */
 namespace Sammy\Packs\Sami\Module {
+  use ApplicationModule;
   /**
    * Make sure the module base internal class is not
    * declared in the php global scope defore creating
