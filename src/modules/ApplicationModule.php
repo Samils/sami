@@ -71,8 +71,6 @@ class ApplicationModule extends Module {
      * and associate it to the controller according
      * to the ils names convenctions.
      */
-    ApplicationModule\Base\Scope::Register (
-      static::class
-    );
+    Scope::Register (static::class);
   }
 }}
