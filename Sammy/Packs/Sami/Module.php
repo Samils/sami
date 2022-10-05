@@ -32,6 +32,7 @@
  */
 namespace Sammy\Packs\Sami {
   use Sami as Application;
+  use Sammy\Packs\Sami\Module\Scope;
   /**
    * Make sure the module base internal class is not
    * declared in the php global scope defore creating
