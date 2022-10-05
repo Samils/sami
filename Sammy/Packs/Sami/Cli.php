@@ -70,17 +70,6 @@ namespace Sammy\Packs\Sami {
     public static function Execute () {
       $cli = requires ('sami/cli');
 
-      $root = module::getModuleRootDir (__DIR__);
-
-      $cli->config (['src' => join ('/', [$root, 'cli'])])
-        ->setNamespace ('Application\Cli\Command')
-        ->registerCommandDir ('~/bin')
-        ->plugins ('module:samils-cli')
-        ->plugins ('module:samils-cli-*')
-        ->plugins ('module:samils-devpacks')
-        ->plugins ('module:xsami/cli')
-        ->plugins ('./plugins')
-        ->execute ();
     }
   }}
 }
