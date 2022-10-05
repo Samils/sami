@@ -31,6 +31,7 @@
  * SOFTWARE.
  */
 use Sammy\Packs\Sami\Module;
+use Sammy\Packs\Sami\Module\Scope;
 /**
  *
  * Make sure the module base internal class is not
