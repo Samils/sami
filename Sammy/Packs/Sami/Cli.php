@@ -70,6 +70,7 @@ namespace Sammy\Packs\Sami {
     public static function Execute () {
       $cli = requires ('sami/cli');
 
+      $cli->execute ();
     }
   }}
 }
