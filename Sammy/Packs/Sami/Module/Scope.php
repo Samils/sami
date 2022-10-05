@@ -82,5 +82,12 @@ namespace Sammy\Packs\Sami\Module {
         }
       }
     }
+
+    /**
+     * @method void
+     */
+    public static function RegisterModuleController (string $moduleName, object $controllerObject) {
+      array_push (self::$ApplicationModuleBase [$moduleName], $controllerObject);
+    }
   }}
 }
