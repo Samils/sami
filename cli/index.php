@@ -12,6 +12,7 @@ $cli->config (['src' => __DIR__])
   ->plugins ('module:samils-devpacks')
   ->plugins ('module:xsami/cli')
   ->plugins ('./plugins');
+
 $moduleConfig = requires ('~/module.json');
 
 if (is_array ($moduleConfig) &&
