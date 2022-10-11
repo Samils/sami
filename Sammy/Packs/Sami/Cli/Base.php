@@ -73,10 +73,7 @@ namespace Sammy\Packs\Sami\Cli {
           return false;
         }
 
-        self::$running = true;
-        #require_once ( __root__ . '/config/applicationcli/index.php' );
-
-        return true;
+        return (self::$running = true);
       }
 
       return false;

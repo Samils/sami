@@ -68,7 +68,7 @@ namespace Sammy\Packs\Sami {
      * @method void Execute
      */
     public static function Execute () {
-      $cli = requires ('sami/cli');
+      $cli = requires ('@HOME/cli');
 
       $cli->execute ();
     }

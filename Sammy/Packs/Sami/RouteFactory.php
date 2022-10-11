@@ -191,7 +191,7 @@ namespace Sammy\Packs\Sami {
             }
           }
 
-          return [$path, $ca];
+          return [$path, self::PathToName ($ca, ['separator' => '\\'])];
         }
 
         return [];
