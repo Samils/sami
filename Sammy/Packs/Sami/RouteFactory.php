@@ -78,7 +78,6 @@ namespace Sammy\Packs\Sami {
 
       if (is_string ($path)) {
         list ($path, $ca) = self::rewriteRoutePath ($backTrace, $path, $ca);
-        #require (dirname(__FILE__) . '/rv/_fnc.php');
 
         $app = Sami::ApplicationModule ();
 
@@ -88,46 +87,45 @@ namespace Sammy\Packs\Sami {
       }
     }
 
-    public static function rewriteRoutePath ($t = null, $path = null, $ca = null) {
-      if (isset($t[0]) && is_array($t[0]) && isset($t[0]['function'])) {
+    public static function rewriteRoutePath ($backTrace = null, $path = null, $ca = null) {
+      $traceClosureArgumentsElementIndex = 0;
+
+      if (isset ($backTrace[$traceClosureArgumentsElementIndex]) && is_array ($backTrace [$traceClosureArgumentsElementIndex]) && isset ($backTrace[$traceClosureArgumentsElementIndex]['function'])) {
 
         $funcRe = '/^(Application\\\Routes\\\Drawing\\\([a-z]+))$/i';
+
         /**
          * Make sure, the current flux is inside a php closure
          * inside the Application\Routes\Drawing namespace.
          */
-        if (preg_match ($funcRe, $t [0]['function'])) {
-          #exit ('LKS');
+        if (preg_match ($funcRe, $backTrace [$traceClosureArgumentsElementIndex]['function'])) {
           /**
            * [$clos_args Closure Arguments]
            * @var array
            */
-          $clos_args = isset ($t[0]['args']) && is_array($t[0]['args']) ? (
-            $t[0]['args']
+          $clos_args = isset ($backTrace[1]['args']) && is_array ($backTrace[1]['args']) ? (
+            $backTrace [1]['args']
           ) : [];
 
-          #echo 'a<pre>';
-          #print_r($t);
-          #exit ('</pre>');
-
           $routeGroupOptionsGiven = ( boolean ) (
-            isset ($t[3]) && is_array ($t[3]) &&
-            isset ($t[3]['args']) &&
-            is_array ($t[3]['args']) && (
-              isset ($t[3]['args'][1]) &&
-              is_string ($t[3]['args'][1])
+            isset ($backTrace[3]) &&
+            is_array ($backTrace[3]) &&
+            isset ($backTrace[3]['args']) &&
+            is_array ($backTrace[3]['args']) && (
+              isset ($backTrace[3]['args'][1]) &&
+              is_string ($backTrace[3]['args'][1])
             ) &&
             (is_string ($ca) || is_null ($ca))
           );
 
           $resourceBaseReferenceGiven = ( boolean ) (
-            self::resourceBaseRefGiven ($t)
+            self::resourceBaseRefGiven ($backTrace)
           );
 
           if ( $resourceBaseReferenceGiven ) {
             $basePath = preg_replace ('/^(\/+)/', '',
               preg_replace ('/(\/+)$/', '',
-                $t[1]['args'][0]['base']
+                $backTrace[1]['args'][0]['base']
               )
             );
 
@@ -139,7 +137,7 @@ namespace Sammy\Packs\Sami {
 
             $mdRe = '/^([^@]+)/';
             $middleware = '';
-            $groupBase = trim ($t[3]['args'][1]);
+            $groupBase = trim ($backTrace[3]['args'][1]);
 
             if (preg_match ($mdRe, $groupBase, $mdMatch)) {
               $middleware = trim ($mdMatch [0]);
@@ -175,9 +173,8 @@ namespace Sammy\Packs\Sami {
             $clos_args[0]
           ) : null;
 
-          $path = ('/' . preg_replace ('/^(\/+)/', '',
-            preg_replace ('/\/{2,}/', '/', $path)
-          ));
+          $path = preg_replace ('/\/{2,}/', '/', $path);
+          $path = '/' . preg_replace ('/^(\/+)/', '', $path);
 
           if (is_array ($closureArguments)) {
             /**
@@ -196,9 +193,10 @@ namespace Sammy\Packs\Sami {
 
           return [$path, $ca];
         }
+
+        return [];
       }
     }
-
 
     /**
      * RoutePathToName
@@ -258,6 +256,7 @@ namespace Sammy\Packs\Sami {
       }
 
       $separatorRe = self::path2re ($separator);
+
       return preg_replace ('/^('.$separatorRe.')/', '', $name);
     }
 
@@ -282,12 +281,12 @@ namespace Sammy\Packs\Sami {
       }, (string)$path);
     }
 
-    public static function resourceBaseRefGiven ($t = null) {
+    public static function resourceBaseRefGiven ($backTrace = null) {
       $re = 'application\routes\drawing\{closure}';
 
       #echo '<pre>';
 
-      #print_r ($t);
+      #print_r ($backTrace);
 
       #exit (0);
 
@@ -295,49 +294,38 @@ namespace Sammy\Packs\Sami {
        * [$f]
        * @var string
        */
-      if (is_array ($t) &&
-        isset ($t[1]) && is_array ($t[1]) &&
-        isset ($t[1]['args']) &&
-        is_array ($t[1]['args']) &&
-        isset ($t[1]['args'][0]) &&
-        is_array ($t[1]['args'][0]) &&
-        isset ($t[1]['args'][0]['base']) &&
-        is_string ($t[1]['args'][0]['base']) &&
-        isset ($t[1]['function']) &&
-        strtolower ($t[1]['function']) == $re) {
-        return $t[1]['args'][0]['base'];
+      if (is_array ($backTrace) &&
+        isset ($backTrace[1]) && is_array ($backTrace[1]) &&
+        isset ($backTrace[1]['args']) &&
+        is_array ($backTrace[1]['args']) &&
+        isset ($backTrace[1]['args'][0]) &&
+        is_array ($backTrace[1]['args'][0]) &&
+        isset ($backTrace[1]['args'][0]['base']) &&
+        is_string ($backTrace[1]['args'][0]['base']) &&
+        isset ($backTrace[1]['function']) &&
+        strtolower ($backTrace[1]['function']) == $re) {
+        return $backTrace[1]['args'][0]['base'];
       }
     }
 
-    public static function resourceCoreRefGiven ($t = null) {
+    public static function resourceCoreRefGiven ($backTrace = null) {
       $re = 'application\routes\drawing\{closure}';
 
       /**
        * [$f]
        * @var string
        */
-
-      #if ($t [0]['args'][0] === 'comments') {
-
-        #echo '<pre>';
-
-        #print_r ($t);
-
-        #exit (0);
-
-      #}
-
-      if (is_array ($t) &&
-        isset ($t[1]) && is_array ($t[1]) &&
-        isset ($t[1]['args']) &&
-        is_array ($t[1]['args']) &&
-        isset ($t[1]['args'][0]) &&
-        is_array ($t[1]['args'][0]) &&
-        isset ($t[1]['args'][0]['routerResourceCore']) &&
-        is_object ($t[1]['args'][0]['routerResourceCore']) &&
-        isset ($t[1]['function']) &&
-        strtolower ($t[1]['function']) == $re) {
-        return $t[1]['args'][0]['routerResourceCore'];
+      if (is_array ($backTrace) &&
+        isset ($backTrace[1]) && is_array ($backTrace[1]) &&
+        isset ($backTrace[1]['args']) &&
+        is_array ($backTrace[1]['args']) &&
+        isset ($backTrace[1]['args'][0]) &&
+        is_array ($backTrace[1]['args'][0]) &&
+        isset ($backTrace[1]['args'][0]['routerResourceCore']) &&
+        is_object ($backTrace[1]['args'][0]['routerResourceCore']) &&
+        isset ($backTrace[1]['function']) &&
+        strtolower ($backTrace[1]['function']) == $re) {
+        return $backTrace[1]['args'][0]['routerResourceCore'];
       }
     }
   }}

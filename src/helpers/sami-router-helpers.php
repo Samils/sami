@@ -130,20 +130,22 @@ namespace Application\Routes\Drawing {
    * @keywords router, root-route
    */
   function root ($ca = null) {
-    $path = '/';
-    $t = debug_backtrace ();
+    $backTrace = debug_backtrace ();
 
-    list  ($path, $ca) = RouteFactory::rewriteRoutePath ($t, $path, $ca);
+    $rewritenBackTrace = array_merge (
+      [
+        array_merge (
+          $backTrace [0],
+          [
+            'args' => array_merge (['/'], func_get_args ())
+          ]
+        )
+      ],
+      array_slice ($backTrace, 1, count ($backTrace))
+    );
 
-    $app = Sami::ApplicationModule ();
-
-    if (method_exists ($app, 'getRq')) {
-      return call_user_func_array (
-        [$app, 'getRq'], [$path, $ca, $t]
-      );
-    }
+    return RouteFactory::Factory ('getRq', $rewritenBackTrace);
   }}
-
 
   /**
    * Samils\Functions
