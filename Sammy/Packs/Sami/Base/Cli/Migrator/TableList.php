@@ -69,7 +69,7 @@ namespace Sammy\Packs\Sami\Base\Cli\Migrator {
      * @method void add
      */
     public function add ($tableName) {
-      $this->mergeProp ('list', [$tableName]);
+      $this->mergeProp ('list', [strtolower ($tableName)]);
     }
 
     /**

@@ -31,6 +31,8 @@
  * SOFTWARE.
  */
 namespace Sammy\Packs\Sami\Base {
+  use Sammy\Packs\Sami\Error;
+  use Sammy\Packs\Sami\Base\Cli\Migrator;
   /**
    * Make sure the module base internal class is not
    * declared in the php global scope defore creating
@@ -116,6 +118,17 @@ namespace Sammy\Packs\Sami\Base {
       } else {
         Error::NoMethod ($meth, static::class, debug_backtrace ());
       }
+    }
+
+    protected static function _calledFromMigrator () {
+      $backTrace = array_slice (debug_backtrace (), 1, 2);
+
+      return (boolean)(
+        isset ($backTrace [1])
+        && is_array ($backTrace [1])
+        && isset ($backTrace [1]['class'])
+        && $backTrace [1]['class'] === Migrator::class
+      );
     }
   }}
 }

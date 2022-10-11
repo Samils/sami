@@ -70,6 +70,8 @@ namespace Sammy\Packs\Sami\Base\Cli {
     use Migrator\Helper\Prepare;
     use Migrator\SchemaFileGenerator;
 
+    private static $tableList2Change = [];
+
     /**
      * [migrate description]
      *
@@ -78,6 +80,7 @@ namespace Sammy\Packs\Sami\Base\Cli {
     public static function Migrate () {
 
       Sbr::SetUpSchema ();
+      #Table::ClearStore ();
 
       # Get whole the declared classes until
       # the current moment, in order filtering
@@ -273,6 +276,12 @@ namespace Sammy\Packs\Sami\Base\Cli {
 
       $tables = (array) (Table::All ());
 
+
+      #echo "\n\n\n\nTable=>\n\n\n";
+      #print_r($tables);
+
+      #exit (0);
+
       # Get a list of whole the created
       # tables from migrations and the schema
       # base context.
@@ -296,9 +305,9 @@ namespace Sammy\Packs\Sami\Base\Cli {
       # End Todo
       # Table::DropList (array_reverse (array_keys ($tables)));
 
-      $tableList2Change = $tables2change->all ();
+      self::$tableList2Change = $tables2change->all ();
 
-      if (!(count ($tableList2Change) >= 1)) {
+      if (!(count (self::$tableList2Change) >= 1)) {
 
         Console::Warning ("\n", 'Whole the migrations up to date.!');
 
@@ -306,6 +315,8 @@ namespace Sammy\Packs\Sami\Base\Cli {
 
         return;
       }
+
+      #print_r(self::$tableList2Change);
 
       foreach ($tables as $table => $structure) {
         /**
@@ -321,7 +332,7 @@ namespace Sammy\Packs\Sami\Base\Cli {
           ])
         ]);
         */
-
+        #echo "\n\n\n\n\n\n\n[table => {$table}]\n\n\n\n\n\n\n\n";
         # ... Create the table
         # Before creating (updating) the
         # table structure in the database,
@@ -330,25 +341,54 @@ namespace Sammy\Packs\Sami\Base\Cli {
         # in order warrating that only the
         # changed migrations are runned to
         # update the database structure.
-        if (in_array (strtolower ($table), $tableList2Change)) {
-          # Get whole the table names that creates
-          # reference with the current one
-          # being migrated in order storing
-          # its datas and dropping it from
-          # the database before migrating
-          # the current table to the database.
-          $referalTables = Table::DropReferalTables ($table);
-
-          $tableList2Change = array_merge (
-            $tableList2Change,
-            $referalTables
-          );
-
-          Table::Create ($table, $structure);
+        if (in_array (strtolower ($table), self::$tableList2Change)) {
+          self::CreateTable (strtolower ($table));
         }
       }
 
       self::GenerateSchemaFile ($t);
+    }
+
+    private static function CreateTable ($table) {
+      if (Table::CreatedFromAMigration ($table)) {
+        # echo "\n\n\n\n'$table' table is created from cache\n\n\n";
+      }
+      # Get whole the table names that creates
+      # reference with the current one
+      # being migrated in order storing
+      # its datas and dropping it from
+      # the database before migrating
+      # the current table to the database.
+      #echo "\n\n\n\n\nCreating TAble => $table\n\n\n\n\n\n";
+      $referalTables = Table::DropReferalTables ($table);
+
+      #print_r ($referalTables);
+
+      if ($referalTables) {
+        #print_r($referalTables);
+        #exit ("\n\n\n\nTable => $table\n\n\n\n");
+      }
+
+      #echo "\n\n\n\nCreate IT\n\n\n\n\n";
+
+      $structure = Table::Read ($table);
+
+      if (!$structure) {
+        return;
+      }
+
+      $tableReferences = Table::GetReferenceTables ($table);
+
+      foreach ($tableReferences as $tableReference) {
+        self::CreateTable ($tableReference);
+      }
+
+      self::$tableList2Change = array_merge (
+        self::$tableList2Change,
+        $referalTables
+      );
+
+      Table::Create ($table, $structure);
     }
   }}
 }

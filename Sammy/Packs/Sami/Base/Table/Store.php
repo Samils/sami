@@ -63,12 +63,27 @@ namespace Sammy\Packs\Sami\Base\Table {
      * [$Store description]
      * @var array
      */
-    private static $Store = array ();
+    private static $Store = [];
+
     /**
      * [$Tables description]
      * @var array
      */
-    private static $Tables = array ();
+    private static $Tables = [];
+
+    /**
+     * @var array
+     *
+     * created table names list
+     */
+    private static $createdTableNames = [];
+
+    /**
+     * @var array
+     *
+     * table options
+     */
+    private static $tableOptions = [];
 
     /**
      * [Define description]
@@ -80,6 +95,11 @@ namespace Sammy\Packs\Sami\Base\Table {
 
       if (is_string ($name) && is_array ($props) &&
         in_array (strtolower ($name), self::$Tables)) {
+        self::$tableOptions [strtolower ($name)] = array_merge (
+          ['options' => $options],
+          ['trace' => debug_backtrace ()]
+        );
+
         self::$Store [ strtolower ($name) ] = $props;
       }
     }
@@ -134,6 +154,12 @@ namespace Sammy\Packs\Sami\Base\Table {
 
     public static function All () {
       return self::$Store;
+    }
+
+    public static function ClearStore () {
+      if (self::_calledFromMigrator ()) {
+        self::$Store = [];
+      }
     }
 
     /**
@@ -232,14 +258,36 @@ namespace Sammy\Packs\Sami\Base\Table {
 
             if (is_array ($columnReference) &&
               isset ($columnReference [1]) &&
-              $columnReference [1] === $referenceTable) {
-              array_push ($referals, $tableName);
+              strtolower ($columnReference [1]) === strtolower ($referenceTable)) {
+              array_push ($referals, strtolower ($tableName));
             }
           }
         }
       }
 
       return $referals;
+    }
+
+    public static function GetReferenceTables ($tableName) {
+      $tableData = self::Read ($tableName);
+
+      if (!$tableData) {
+        return [];
+      }
+
+      $referenceTableList = [];
+
+      foreach ($tableData as $prop => $value) {
+        if (is_array ($value) && isset ($value ['reference'])) {
+          $reference = Migrator::readReference ($value ['reference']);
+
+          if (is_array ($reference) && isset ($reference [1])) {
+            array_push ($referenceTableList, strtolower ($reference [1]));
+          }
+        }
+      }
+
+      return $referenceTableList;
     }
 
     public static function DropReferalTables ($referenceTable) {
@@ -262,13 +310,17 @@ namespace Sammy\Packs\Sami\Base\Table {
           self::Drop ($table);
         }
       }
+    }
 
-      #exit ("\n\nDROP END\n\n");
+    public static function Created ($tableName) {
+      return in_array (self::$createdTableNames, $tableName);
     }
 
     public static function Create ($table, $body) {
       if ($conn = self::validateRef ()) {
         $conn->model ($table, true, $body);
+
+        array_push (self::$createdTableNames, $table);
       }
     }
   }}

@@ -103,7 +103,7 @@ namespace Sammy\Packs\Sami\Base\Cli\Migrator\Helper {
       # table like it is but other wise do the
       # contrary, updating the table in the db.
 
-      if (!(count($mg_get) >= 1)) {
+      if (!(is_array ($mg_get) && count ($mg_get) >= 1)) {
         $tables->add ($migration->getTableName ());
 
         $mg = new SchemaMigration ([

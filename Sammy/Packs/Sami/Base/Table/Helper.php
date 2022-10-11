@@ -32,6 +32,7 @@
  */
 namespace Sammy\Packs\Sami\Base\Table {
   use Sammy\Packs\Sami\Error;
+  use Sami\Base\Migration;
   /**
    * Make sure the module base internal trait is not
    * declared in the php global scope defore creating
@@ -146,6 +147,45 @@ namespace Sammy\Packs\Sami\Base\Table {
       $col->reference (['id', 'inTable' => $tableName]);
 
       return $col;
+    }
+
+    public static function CreatedFromAMigration ($tableName) {
+      $tableName = strtolower ($tableName);
+
+      if (self::Exists ($tableName)) {
+        $tableTrace = self::$tableOptions [$tableName]['trace'];
+
+        return (boolean)(
+          is_array ($tableTrace)
+          && isset ($tableTrace [2])
+          && is_array ($tableTrace [2])
+          && isset ($tableTrace [2]['class'])
+          && in_array (Migration::class, class_parents ($tableTrace [2]['class']))
+        );
+      }
+    }
+
+    public static function CreatedFromMap ($tableName) {
+      $tableName = strtolower ($tableName);
+
+      $index = 3;
+
+      if (self::Exists ($tableName)) {
+        $tableTrace = self::$tableOptions [$tableName]['trace'];
+
+        #echo "Table Nme => $tableName\n\n\n\n";
+        #print_r (array_slice ($tableTrace, 0, 5));
+        #echo "\n\n\n\n\n\n\n";
+
+        return (boolean)(
+          is_array ($tableTrace)
+          && isset ($tableTrace [$index])
+          && is_array ($tableTrace [$index])
+          && isset ($tableTrace [$index]['class'])
+          && $tableTrace [$index]['class'] === Schema::class
+        );
+      }
+
     }
   }}
 }
