@@ -20,11 +20,11 @@ namespace Sammy\Packs\Sami\Rae {
   $module->exports = new Func (function ($args) {
     # Request
     # Sammy\Packs\HTTP\Request Object
-    $req = new Request;
+    $request = new Request;
     # Response
     # Sammy\Packs\HTTP\Response object
-    $res = new Response;
-    $template = $args ['Template'];
+    $response = new Response;
+    $routeSource = $args ['source'];
     $middlewareDatas = [];
 
     if (!isset ($args ['middlewareDatas'])) {
@@ -35,29 +35,21 @@ namespace Sammy\Packs\Sami\Rae {
     $controllerActionHandler = new ControllerActionHandler;
     $uncontrolledActionHandler = new UncontrolledActionHandler;
 
-    if (!preg_match ('/^(@+)/', $template)) {
-      $uncontrolledActionHandler->handle ($template);
-    }
+    #if (!preg_match ('/^(@+)/', $routeSource)) {
+    #  $uncontrolledActionHandler->handle ($routeSource);
+    #}
 
-    $responseDataObject = null;
-    $template = preg_replace('/^(@+)/', '', $template );
-    $strTemplateSlices = preg_split('/\/+/', $template);
-    $controller = $strTemplateSlices [ 0 ];
+    $responseponseDataObject = null;
+    #$routeSource = preg_replace('/^(@+)/', '', $routeSource);
+    #$strTemplateSlices = preg_split ('/\/+/', $routeSource);
+    $controller = $routeSource->controller;
 
-    if (!isset ($strTemplateSlices [1])) {
-      # set default action as 'index'
-      # if there is not specified any
-      # for being called from the
-      # current request
-      $action = 'index';
-    } else {
-      $action = $controllerActionHandler->actionName ($strTemplateSlices);
-    }
+    $action = $routeSource->action ? $routeSource->action : 'index';
 
     $controllerObject = $controllerResolve->resolve ($controller);
-    $req->setProperty ( 'controller', $controllerObject );
+    $request->setProperty ('controller', $controllerObject);
 
-    $responseDataObject = $controllerActionHandler->handle (
+    $responseponseDataObject = $controllerActionHandler->handle (
       $controllerObject, $action, $middlewareDatas
     );
 
@@ -69,18 +61,22 @@ namespace Sammy\Packs\Sami\Rae {
 
       $templateResolve = new TemplateResolve;
 
-      $viewTemplateDatas = $templateResolve->resolve ($template);
+      $templatePath = join ('/', [$routeSource->controller, $routeSource->action]);
+
+      $templatePath = preg_replace ('/[\/\\\\]+/', '/', $templatePath);
+
+      $viewTemplateDatas = $templateResolve->resolve ($templatePath);
       $templateDatas = null;
 
       if (is_array ($viewTemplateDatas)) {
         $templateDatas = array (
           'template' => $viewTemplateDatas,
-          'responseData' => $responseDataObject
+          'responseData' => $responseponseDataObject
         );
       }
 
       if ( !is_array ($templateDatas) ) {
-        Error::TemplateMissing ($template);
+        Error::TemplateMissing ($templatePath);
       }
 
       return $templateDatas;

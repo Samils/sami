@@ -31,6 +31,7 @@
  * SOFTWARE.
  */
 namespace Sammy\Packs\Sami\RouteDatas {
+  use Sammy\Packs\Sami\Router\Path;
   use Param as RouteParam;
   /**
    * Make sure the module base internal trait is not
@@ -63,71 +64,81 @@ namespace Sammy\Packs\Sami\RouteDatas {
      */
     public function getTemplateDatas () {
       $routes = $this->routeList;
-      $route = $this->path;
+      $requestRoute = $this->path;
 
       $routes = !is_array ($routes) ? [] : $routes;
-      $route = !(strlen (trim ($route)) >= 2) ? $route : (
-        preg_replace ( '/(\/+)$/', '',  $route )
-      );
+      // $route = !(strlen (trim ($route)) >= 2) ? $route : (
+      //   preg_replace ( '/(\/+)$/', '',  $route )
+      // );
+      //
+      // # Template
+      // $paramContext = null;
 
-      # Template
-      $paramContext = null;
+      // if (isset ($routes [$route])) {
+      //   $this->asign ($routes [$route]);
+      //   return $routes [$route];
+      // } else {
+      //   # $routes -> The defined routes list
+      //   # $r -> a $route
+      //   # $d -> a $route data
+      //   foreach ($routes as $routeRegularExpression => $routeDatas) {
 
-      if (isset ($routes [$route])) {
-        $this->asign ($routes [$route]);
-        return $routes [$route];
-      } else {
-        # $routes -> The defined routes list
-        # $r -> a $route
-        # $d -> a $route data
-        foreach ($routes as $routeRegularExpression => $routeDatas) {
+      //     if (!((is_array ($routeDatas) &&
+      //       isset ($routeDatas ['template']) &&
+      //       $routeDatas ['template'] instanceof RouteParam) ||
+      //       (is_array ($routeDatas) &&
+      //       isset ($routeDatas ['match']) &&
+      //       is_bool ($routeDatas ['match']) &&
+      //       $routeDatas ['match'])
+      //     )) {
+      //       continue;
+      //     }
 
-          if (!((is_array ($routeDatas) &&
-            isset ($routeDatas ['template']) &&
-            $routeDatas ['template'] instanceof RouteParam) ||
-            (is_array ($routeDatas) &&
-            isset ($routeDatas ['match']) &&
-            is_bool ($routeDatas ['match']) &&
-            $routeDatas ['match'])
-          )) {
-            continue;
-          }
+      //     # Validate Regular expression
+      //     # before matching to the route
+      //     if (@preg_match_all ($routeRegularExpression, $route, $match)) {
+      //       # Template
+      //       $paramContext = $routeDatas['template'];
 
-          # Validate Regular expression
-          # before matching to the route
-          if (@preg_match_all ($routeRegularExpression, $route, $match)) {
-            # Template
-            $paramContext = $routeDatas['template'];
+      //       if ( $paramContext instanceof RouteParam ) {
+      //         $paramNames = $paramContext->getParamNames();
+      //         $paramNamesCount = count($paramNames);
 
-            if ( $paramContext instanceof RouteParam ) {
-              $paramNames = $paramContext->getParamNames();
-              $paramNamesCount = count($paramNames);
+      //         for ($i = 0; $i < $paramNamesCount; $i++) {
+      //           $paramValue = null;
 
-              for ($i = 0; $i < $paramNamesCount; $i++) {
-                $paramValue = null;
+      //           $validParamValueSent = ( boolean ) (
+      //             isset ($match [ $i + 1 ]) &&
+      //             is_array ($match [ $i + 1 ]) &&
+      //             isset ($match [ $i + 1 ][ 0 ])
+      //           );
 
-                $validParamValueSent = ( boolean ) (
-                  isset ($match [ $i + 1 ]) &&
-                  is_array ($match [ $i + 1 ]) &&
-                  isset ($match [ $i + 1 ][ 0 ])
-                );
+      //           if ( $validParamValueSent ) {
+      //             $paramValue = $match [ $i + 1 ][ 0 ];
+      //           }
 
-                if ( $validParamValueSent ) {
-                  $paramValue = $match [ $i + 1 ][ 0 ];
-                }
+      //           $paramContext->set ($paramNames [ $i ], $paramValue);
+      //         }
 
-                $paramContext->set ($paramNames [ $i ], $paramValue);
-              }
+      //         $routeDatas ['params'] = $paramContext;
+      //       } else {
+      //         $routeDatas ['matches'] = $match;
+      //       }
 
-              $routeDatas ['params'] = $paramContext;
-            } else {
-              $routeDatas ['matches'] = $match;
-            }
+      //       $this->asign ($routeDatas);
 
-            $this->asign ($routeDatas);
+      //       return $routeDatas;
+      //     }
+      //   }
+      // }
+      //
+      //
+      foreach ($routes as $route) {
+        $routePath = $route ['route'];
 
-            return $routeDatas;
-          }
+        if ($routePath instanceof Path
+          && $routePath->matches ($requestRoute)) {
+          return $route;
         }
       }
     }

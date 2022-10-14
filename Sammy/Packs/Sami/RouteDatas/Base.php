@@ -98,6 +98,11 @@ namespace Sammy\Packs\Sami\RouteDatas {
       # Route Template
       $routeTemplateDatas = $route->getTemplateDatas ();
 
+      #echo '<pre>';
+
+      #print_r ($routeTemplateDatas);
+
+      #exit (0);
       if ($routeTemplateDatas) {
         return [$routeTemplateDatas, $route];
       }

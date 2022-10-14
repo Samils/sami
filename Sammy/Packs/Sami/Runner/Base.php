@@ -77,7 +77,7 @@ namespace Sammy\Packs\Sami\Runner {
      */
     public function runApp (Controller $app = null) {
       $middlewareDatas = array ();
-      $requestDatas = requires ('<moduleRootDir>/@rd');
+      $requestDatas = requires ('@HOME/@rd');
 
       $this->setApp ($app);
 
@@ -88,19 +88,26 @@ namespace Sammy\Packs\Sami\Runner {
         Error::NoRoute ($requestDatas ['method'], $requestDatas ['route']);
       }
 
-      $routeTrace = !isset ($routeTemplateDatas ['trace']) ? [] : (
-        $routeTemplateDatas ['trace']
-      );
+      $routeTrace = [];
 
-      $req = new Request;
-      $res = new Response;
+      if (isset ($routeTemplateDatas ['trace'])) {
+        $routeTrace = $routeTemplateDatas ['trace'];
+      }
 
-      if (isset ($routeTemplateDatas ['middleware'])) {
-        $middle = requires ('<moduleRootDir>/middle');
+      $request = new Request;
+      $response = new Response;
+
+      $routeSource = $routeTemplateDatas ['template'];
+
+      $middlewarePath = join (':', array_values ($routeSource->middleware));
+      $middlewarePath = preg_replace ('/:+$/', '', $middlewarePath);
+
+      if (!empty ($middlewarePath)) {
+        $middle = requires ('@HOME/middle');
 
         $middlewareDatas = $middle->resolve (
-          $routeTemplateDatas ['middleware'],
-          [$req, $res],
+          $middlewarePath,
+          [$request, $response],
           ['trace' => $routeTrace]
         );
       }
@@ -109,94 +116,99 @@ namespace Sammy\Packs\Sami\Runner {
         $middlewareDatas = [$middlewareDatas];
       }
 
-      # reference datas
-      $referenceDatas = [
-        'template' => null,
-        'params' => null,
-        'matches' => null
-      ];
+      // exit ('UA');
 
-      $routeTemplateDatas ['template'] = isset ($routeTemplateDatas ['template']) ? $routeTemplateDatas ['template'] : null;
+      // # reference datas
+      // $referenceDatas = [
+      //   'template' => null,
+      //   'params' => null,
+      //   'matches' => null
+      // ];
 
-      $paramContext = new Param ();
-      # Switch 'template' property
-      # from the '$rt' variable
-      # in order getting the given
-      # reference for the current route
-      if (is_array ($routeTemplateDatas ['template'])) {
-        $referenceDatas ['template'] = $routeTemplateDatas ['template']['template'];
+      // $routeTemplateDatas ['template'] = isset ($routeTemplateDatas ['template']) ? $routeTemplateDatas ['template'] : null;
 
-        if (isset ($routeTemplateDatas ['match']) && $routeTemplateDatas ['match']) {
-          $referenceDatas ['matches'] = !isset ($routeTemplateDatas ['matches']) ? null : ($routeTemplateDatas ['matches']);
-        }
-      } elseif (is_string ($routeTemplateDatas ['template']) || is_func ($routeTemplateDatas ['template'])) {
-        $referenceDatas ['template'] = $routeTemplateDatas ['template'];
-      } elseif ($routeTemplateDatas ['template'] instanceof Param) {
-        $paramContext = $routeTemplateDatas ['template'];
-        $referenceDatas ['template'] = $paramContext->getTemplate ();
-        $referenceDatas ['params'] = $paramContext;
-      }
+      // $paramContext = new Param ();
+      // # Switch 'template' property
+      // # from the '$rt' variable
+      // # in order getting the given
+      // # reference for the current route
+      // if (is_array ($routeTemplateDatas ['template'])) {
+      //   $referenceDatas ['template'] = $routeTemplateDatas ['template']['template'];
 
-      ParamContextBootstrapper::BootstrapParamContext ($paramContext);
+      //   if (isset ($routeTemplateDatas ['match']) && $routeTemplateDatas ['match']) {
+      //     $referenceDatas ['matches'] = !isset ($routeTemplateDatas ['matches']) ? null : ($routeTemplateDatas ['matches']);
+      //   }
+      // } elseif (is_string ($routeTemplateDatas ['template']) || is_func ($routeTemplateDatas ['template'])) {
+      //   $referenceDatas ['template'] = $routeTemplateDatas ['template'];
+      // } elseif ($routeTemplateDatas ['template'] instanceof Param) {
+      //   $paramContext = $routeTemplateDatas ['template'];
+      //   $referenceDatas ['template'] = $paramContext->getTemplate ();
+      //   $referenceDatas ['params'] = $paramContext;
+      // }
+
+      // ParamContextBootstrapper::BootstrapParamContext ($paramContext);
 
       # Verify if the 'matches' index
       # is inside the '$referenceDatas' array
       # in order setting as a property for
       # the 'req' object sent to the action
       # being called from the request response
-      if (isset ($referenceDatas ['matches'])) {
-        $req->setProperty ('matches', $referenceDatas ['matches']);
-      }
+      // if (isset ($referenceDatas ['matches'])) {
+      //   $request->setProperty ('matches', $referenceDatas ['matches']);
+      // }
+      //
+      //
+      # Route action execute
+      # Execute the route action
+      # and returns the template
+      # (view) absolute path to be
+      # rendered.
+      $Rae = requires ('@HOME/@rae');
+
+      $rae = $Rae ([
+        'source' => $routeSource,
+        'middlewareDatas' => $middlewareDatas
+      ]);
+
+      # View Engine Datas
+      $viewEngineDatas = ApplicationServerHelpers::conf ('view-engine');
+
+      # View Engine
+      $viewEngine = $viewEngineDatas->viewEngine;
+
+      $viewEngine::RenderDOM (
+        $rae ['template'][0] ,
+        array_merge (
+          $rae ['template'],
+          [
+            'layout' => 'application',
+            'action' => $routeSource->action,
+            'responseData' => $rae ['responseData']
+          ]
+        )
+      );
 
       # Verify if the 'params' index
       # is inside the '$referenceDatas' array
       # in order setting as a property for
       # the 'req' object sent to the action
       # being called from the request response
-      if (isset ($referenceDatas ['params'])) {
-        $req->setProperty ('params', $referenceDatas ['params']);
-      }
+      // if (isset ($referenceDatas ['params'])) {
+      //   $request->setProperty ('params', $referenceDatas ['params']);
+      // }
 
-      if (is_func ($referenceDatas ['template'])) {
-        $func = $referenceDatas ['template'] instanceof \Func ? (
-          $referenceDatas ['template']
-        ) : func ($referenceDatas ['template']);
-        $f = $func->getCallback ();
+      // if (is_func ($referenceDatas ['template'])) {
+      //   $func = $referenceDatas ['template'] instanceof \Func ? (
+      //     $referenceDatas ['template']
+      //   ) : func ($referenceDatas ['template']);
+      //   $f = $func->getCallback ();
 
-        $f1 = Closure::bind ($f, $app, get_class ($app));
+      //   $f1 = Closure::bind ($f, $app, get_class ($app));
 
-        call_user_func_array ($f1, array_merge ([$req, $res], $middlewareDatas));
-      } else {
-        # Route action execute
-        # Execute the route action
-        # and returns the template
-        # (view) absolute path to be
-        # rendered.
-        $Rae = requires ('<moduleRootDir>/@rae');
+      //   call_user_func_array ($f1, array_merge ([$request, $response], $middlewareDatas));
+      // } else {
 
-        $rae = $Rae ([
-          'Template' => $referenceDatas [ 'template' ],
-          'middlewareDatas' => $middlewareDatas
-        ]);
-
-        # View Engine Datas
-        $viewEngineDatas = ApplicationServerHelpers::conf ('view-engine');
-
-        # View Engine
-        $viewEngine = $viewEngineDatas->viewEngine;
-
-        $viewEngine::RenderDOM (
-          $rae ['template'][0] ,
-          array_merge (
-            $rae ['template'],
-            [
-              'layout' => 'application',
-              'action' => $referenceDatas ['template'],
-              'responseData' => $rae ['responseData']
-            ]
-          )
-        );
-      }
+      // }
     }
 
     /**

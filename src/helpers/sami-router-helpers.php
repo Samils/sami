@@ -32,8 +32,11 @@
  */
 namespace Application\Routes\Drawing {
   use Sammy\Packs\Sami\Router\Resource;
+  use Sammy\Packs\Sami\Router\Source;
   use Sammy\Packs\Sami\RouteFactory;
+  use Sammy\Packs\Sami\Router\Path;
   use Sammy\Packs\Sami\Error;
+  use Sammy\Packs\Singular;
   use Closure;
   use Sami;
 
@@ -307,15 +310,21 @@ namespace Application\Routes\Drawing {
    * @author Agostinho Sam'l
    * @keywords router, group
    */
-  function group ($path = null) {
+  function group (string $path = null) {
     $t = debug_backtrace ();
 
-    $body = array_last_i (func_get_args ());
+    $args = func_get_args ();
+
+    $sourceUrl = isset ($args [1]) && is_string ($args [1]) ? $args [1] : null;
+    $body = $args [-1 + count ($args)];
 
     if (is_string ($path) && $body instanceof Closure) {
-      list  ($path) = RouteFactory::rewriteRoutePath ($t, $path);
+      #list  ($path) = RouteFactory::rewriteRoutePath ($t, $path);
 
-      return call_user_func_array ($body, [[ 'rb' => $path ]]);
+      $sourceUrl = new Source ($sourceUrl, $t);
+      $path = new Path ($path, $t);
+
+      return call_user_func_array ($body, [[ 'parent' => [ 'source' => $sourceUrl, 'path' => $path ] ]]);
     }
 
     return Error::BadRoutePath ($t);
@@ -481,8 +490,9 @@ namespace Application\Routes\Drawing {
    * @author Agostinho Sam'l
    * @keywords router, resource
    */
-  function resource ($path_ = null, $l = []) {
-    $t = debug_backtrace ();
+  function resource (string $originalPath, $sourceUrl = '') {
+    $backTrace = debug_backtrace ();
+
     /**
      * Rewrite the path string setting a slash
      * char at the start of the given path.
@@ -490,189 +500,115 @@ namespace Application\Routes\Drawing {
      * If it starts with a slash, remove that before
      * adding a new one.
      */
-    $path = '/' . (preg_replace ('/^\/+/', '', $path_));
+    $path = '/' . (preg_replace ('/^\/+/', '', $originalPath));
 
-    $rules = is_array ($l) ? $l : [];
+    /**
+     * default rules
+     * warrant that the 'except' and 'only' are
+     * inside the rules array in order avoiding
+     * errors when trying to get informations
+     * about them from the rules array when using
+     * the rules to create or not a specific route
+     * from the 'rest_routes' array.
+     */
+    $default_rules = [
+      'only' => [],
+      'except' => [],
+      'middleware' => ''
+    ];
 
-    if (is_string ($path_) && is_right_var_name ($path_)) {
-      list  ($path) = RouteFactory::rewriteRoutePath ($t, $path);
+    if ($basePath = RouteFactory::resourceBasePathGiven ($backTrace)) {
+      $re = '/([a-zA-Z0-9_]+)((\\\\\/)?\(\[\^\\\\\/\]\+\))?$/';
 
-      /**
-       * default rules
-       * warrant that the 'except' and 'only' are
-       * inside the rules array in order avoiding
-       * errors when trying to get informations
-       * about them from the rules array when using
-       * the rules to create or not a specific route
-       * from the 'rest_routes' array.
-       */
-      $default_rules = [
-        'only' => [],
-        'except' => [],
-        'middleware' => ''
-      ];
-      /**
-       * rules
-       * Use the default rules is the given rules
-       * are not contained inside an array
-       * in order keeping the default values
-       * for 'except' and 'only' properties
-       * wich are empty arrays
-       */
-      $rules = is_array ($rules) ? $rules : $default_rules;
-      $rules = array_merge ($default_rules, $rules);
+      $basePathSlices = preg_split ('/[\/\\\\]+/', $basePath->getOriginalRawPath ());
 
-      /**
-       * Make sure the 'only' property is an
-       * array, if it is not, considere an empty
-       * array as the default value for it.
-       */
-      if (!is_array ($rules ['only'])) {
-        /**
-         * Considere an empty _array as
-         * the default value for the 'only'
-         * property on condition that it was not
-         * sent or it is not a valid array.
-         */
-        $rules ['only'] = [];
-      }
+      #echo "Base Path => ", $basePath, "\n";
 
-      /**
-       * Make sure the 'except' property is an
-       * array, if it is not, considere an empty
-       * array as the default value for it.
-       */
-      if (!is_array ($rules ['except'])) {
-        /**
-         * Considere an empty _array as
-         * the default value for the 'except'
-         * property on condition that it was not
-         * sent or it is not a valid array.
-         */
-        $rules ['except'] = [];
-      }
+      #echo "parent => ", $basePath->getOriginalRawPath (), "\n";
 
-      /**
-       * Make sure the 'middleware' property is an
-       * string, if it is not, considere an empty
-       * string as the default value for it.
-       */
-      if (!is_string ($rules ['middleware'])) {
-        /**
-         * Considere an empty string as
-         * the default value for the 'middleware'
-         * property on condition that it was not
-         * sent or it is not a valid string.
-         */
-        $rules ['middleware'] = '';
-      }
+      $singular = new Singular;
 
-      $app = Sami::ApplicationModule ();
+      // if (preg_match ($re, $basePath, $match)) {
+      //   $basePathControllerName = $match [1];
 
-      if (isset ($rules ['module']) &&
-        Sami::IsControllerObject ($rules ['module'])) {
-        $app = $rules ['module'];
-      }
+      //   $basePathControllerName = $singular($basePathControllerName);
 
-      if ($base = RouteFactory::resourceBaseRefGiven ($t)) {
-        $basePath = preg_replace ('/^(\/+)/', '',
-          preg_replace ('/(\/+)$/', '', $base)
+      //   $path = join ('', ['/:', $basePathControllerName, '_id', $path]);
+      // }
+      //
+      $basePathControllerName = $basePathSlices [-1 + count ($basePathSlices)];
+
+      $basePathControllerName = $singular($basePathControllerName);
+
+      $path = join ('', ['/:', $basePathControllerName, '_id', $path]);
+
+      $originalPath = $path;
+    }
+
+    // $rules = is_array ($l) ? $l : [];
+
+    $args = func_get_args ();
+
+    $body = $args [-1 + count ($args)];
+
+    $routerResource = new Resource;
+    $sourceUrl = new Source (is_string ($sourceUrl) ?  $sourceUrl : '' , $backTrace);
+    $path = new Path ($path, $backTrace);
+
+    #echo "raw => ", $path->getOriginalRawPath(), "\n", 'path => ', $path, "\n\n\n";
+
+    $app = Sami::ApplicationModule ();
+
+    $originalPath = join ('', ['/', $originalPath]);
+
+    $middlewarePath = $sourceUrl->getMiddlewarePath ();
+
+    $controllerReference = RouteFactory::PathToName ($path->getOriginalRawPath (), [
+      'separator' => '\\',
+      'capitalized' => true
+    ]);
+
+    # getMiddlewarePath
+    $restRoutes = RouteFactory::Rest ($originalPath, $controllerReference, $middlewarePath);
+
+    if ($body instanceof Closure) {
+      #list  ($path) = RouteFactory::rewriteRoutePath ($t, $path);
+      call_user_func_array ($body, [[ 'parent' => [ 'source' => $sourceUrl, 'path' => $path, 'resource' => $routerResource ] ]]);
+    }
+
+    $onlyList = $routerResource->getOnlyList ();
+    $exceptionsList = $routerResource->getExceptions ();
+
+    $routesActionList = $routerResource->getExceptions ();
+
+    $filter = (function (string $routeAction, array $routesActionList) {
+      return !in_array (strtolower ($routeAction), $routesActionList);
+    });
+
+    if (count ($onlyList) >= 1) {
+      $routesActionList = $routerResource->getOnlyList ();
+      $filter = (function (string $routeAction, array $routesActionList) {
+        return in_array (strtolower ($routeAction), $routesActionList);
+      });
+    }
+
+    foreach ($restRoutes as $routeAction => $routeData) {
+      if (call_user_func_array ($filter, [$routeAction, $routesActionList])) {
+        list ($verb, $routePath, $routeSourceUrl) = $routeData;
+
+        $rewritenBackTrace = array_merge (
+          [
+            array_merge (
+              $backTrace [0],
+              [
+                'args' => [$routePath, $routeSourceUrl]
+              ]
+            )
+          ],
+          array_slice ($backTrace, 1, count ($backTrace))
         );
 
-        $basePathName = RouteFactory::PathToName ($basePath, [
-          'underscored' => true
-        ]);
-
-        $path = join ('', [
-          '/' . $basePath . '/:'.$basePathName.'_id/',
-          preg_replace ('/^\/+/', '', $path_)
-        ]);
-      }
-
-      $routerResource = new Resource;
-      $routerResource->setBase ($path);
-      $routerResource->setModule ($app);
-
-      $routerResourceBody = array_last_i (func_get_args ());
-
-      $rules ['except'] = array_merge ($rules['except'], $routerResource->getExceptions ());
-
-      $rules ['only'] = array_merge ($rules ['only'], $routerResource->getOnlyList ());
-
-      if ($core = RouteFactory::resourceCoreRefGiven ($t)) {
-        /**
-         * addExceptions
-         */
-        if (!$rules ['middleware']) {
-          $routerResource->setMiddleware (
-            $core->getMiddleware ()
-          );
-        }
-      }
-
-      if ($routerResource->getMiddleware ()) {
-        $rules ['middleware'] = $routerResource->getMiddleware ();
-      } else {
-        $routerResource->setMiddleware ($rules ['middleware']);
-      }
-
-      $restRoutes = RouteFactory::Rest ($path, $rules ['middleware']);
-
-      if ($routerResourceBody instanceof Closure) {
-        /**
-         * Call
-         */
-        call_user_func_array ($routerResourceBody, [
-          [
-            'base' => $path,
-            'routerResourceCore' => $routerResource
-          ]
-        ]);
-      }
-
-      #echo '<pre>';
-      #print_r($restRoutes);
-      #echo ('</pre><br /><br /><br />');
-
-      if (count($routerResource->getOnlyList ()) >= 1) {
-        # Run away the rules to be used
-        # in he current resource
-        foreach ($routerResource->getOnlyList () as $i => $action) {
-          #if (!(is_string($action) && $action)) {
-          # exit('Action incorrect');
-          #}
-          $action = trim (strtolower ($action));
-
-          if (isset ($restRoutes [$action])) {
-            # action
-            $actionDatas  = $restRoutes [ $action ];
-
-            if (method_exists ($app, $actionDatas [0])) {
-              call_user_func_array (
-                [$app, $actionDatas [0]],
-                [$actionDatas [1], $actionDatas [2], $t]
-              );
-            }
-          }
-        }
-      } else {
-        /**
-         * Map whole the rest routes and
-         * skip the created exceptions.
-         */
-        foreach ($restRoutes as $action => $actionDatas) {
-           if (!in_array ($action, $routerResource->getExceptions ())) {
-            if (method_exists ($app, $actionDatas [0])) {
-              /**
-               * Create Route
-               */
-              call_user_func_array (
-                [$app, $actionDatas [0]],
-                [$actionDatas [1], $actionDatas [2], $t]
-              );
-            }
-          }
-        }
+        RouteFactory::Factory ($verb, $rewritenBackTrace);
       }
     }
   }}

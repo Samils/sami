@@ -32,6 +32,9 @@
  */
 namespace Sammy\Packs\Sami {
   use Sami;
+  use Sammy\Packs\Sami\Router\Resource;
+  use Sammy\Packs\Sami\Router\Source;
+  use Sammy\Packs\Sami\Router\Path;
   /**
    * Make sure the module base internal class is not
    * declared in the php global scope defore creating
@@ -72,17 +75,40 @@ namespace Sammy\Packs\Sami {
       $funcArgs = $trace ['args'];
 
       $path = $funcArgs ? $funcArgs [0] : null;
-      $ca = !(count ($funcArgs) >= 2) ? null : (
+      $source = !(count ($funcArgs) >= 2) ? null : (
         $funcArgs [-1 + count ($funcArgs)]
       );
 
       if (is_string ($path)) {
-        list ($path, $ca) = self::rewriteRoutePath ($backTrace, $path, $ca);
+        #list ($path, $source) = self::rewriteRoutePath ($backTrace, $path, $source);
+
+        if (!is_string ($source) || empty ($source)) {
+          $s = new Source ('', $backTrace);
+
+          $sPathSlices = preg_split ('/([\/\\\\]+)/', $s->controller);
+          $pathSlices = preg_split ('/([\/\\\\]+)/', $path);
+
+          $pathSlices = array_merge ($sPathSlices, $pathSlices);
+
+          $pathSlicesLen = count ($pathSlices);
+          $controllerRef = '';
+
+          if (count ($pathSlices) >= 2) {
+            $controllerRef = join ('\\', array_slice ($pathSlices, 0, -1 + $pathSlicesLen));
+          }
+
+          $source = join ('', [
+            '@', join ('/', [$controllerRef, $pathSlices [-1 + $pathSlicesLen]])
+          ]);
+        }
+
+        $source = new Source ($source, $backTrace);
+        $path = new Path ($path, $backTrace);
 
         $app = Sami::ApplicationModule ();
 
         if (method_exists ($app, $routeMethod)) {
-          return call_user_func_array ([$app, $routeMethod], [$path, $ca, $backTrace]);
+          return call_user_func_array ([$app, $routeMethod], [$path, $source, $backTrace]);
         }
       }
     }
@@ -210,7 +236,7 @@ namespace Sammy\Packs\Sami {
         $options ['underscored']
       );
 
-      $separator = $underscored ? '_' : '';
+      $separator = $underscored ? '_' : '\\';
       if (!isset ($options['underscored'])) {
         $underscored = true;
       }
@@ -238,6 +264,7 @@ namespace Sammy\Packs\Sami {
 
       $name = '';
       $singular = requires ('singular');
+      $plural = requires ('plural');
 
       for ($i = 0; $i < count ($pathSlices); $i++) {
         /**
@@ -246,6 +273,10 @@ namespace Sammy\Packs\Sami {
          */
         if (!preg_match ('/^:/', $pathSlices [$i])) {
           $currentValue = $singular->parse ($pathSlices [$i]);
+
+          if ($i + 1 === count ($pathSlices)) {
+            $currentValue = $plural->parse ($currentValue);
+          }
 
           if ($capitalized) {
             $currentValue = ucfirst ($currentValue);
@@ -259,7 +290,6 @@ namespace Sammy\Packs\Sami {
 
       return preg_replace ('/^('.$separatorRe.')/', '', $name);
     }
-
 
     private static function validTrace ($trace) {
       return ( boolean ) (
@@ -281,51 +311,35 @@ namespace Sammy\Packs\Sami {
       }, (string)$path);
     }
 
-    public static function resourceBaseRefGiven ($backTrace = null) {
-      $re = 'application\routes\drawing\{closure}';
-
-      #echo '<pre>';
-
-      #print_r ($backTrace);
-
-      #exit (0);
-
-      /**
-       * [$f]
-       * @var string
-       */
-      if (is_array ($backTrace) &&
-        isset ($backTrace[1]) && is_array ($backTrace[1]) &&
-        isset ($backTrace[1]['args']) &&
-        is_array ($backTrace[1]['args']) &&
-        isset ($backTrace[1]['args'][0]) &&
-        is_array ($backTrace[1]['args'][0]) &&
-        isset ($backTrace[1]['args'][0]['base']) &&
-        is_string ($backTrace[1]['args'][0]['base']) &&
-        isset ($backTrace[1]['function']) &&
-        strtolower ($backTrace[1]['function']) == $re) {
-        return $backTrace[1]['args'][0]['base'];
+    public static function resourceBasePathGiven ($backTrace = null) {
+      foreach ($backTrace as $traceData) {
+        if (is_array ($traceData)
+          && isset ($traceData ['args'])
+          && is_array ($traceData ['args'])
+          && isset ($traceData ['args'][0])
+          && is_array ($traceData ['args'][0])
+          && isset ($traceData ['args'][0]['parent'])
+          && is_array ($traceData ['args'][0]['parent'])
+          && isset ($traceData ['args'][0]['parent']['resource'])
+          && $traceData ['args'][0]['parent']['resource'] instanceof Resource) {
+          return $traceData ['args'][0]['parent']['path'];
+        }
       }
     }
 
-    public static function resourceCoreRefGiven ($backTrace = null) {
-      $re = 'application\routes\drawing\{closure}';
-
-      /**
-       * [$f]
-       * @var string
-       */
-      if (is_array ($backTrace) &&
-        isset ($backTrace[1]) && is_array ($backTrace[1]) &&
-        isset ($backTrace[1]['args']) &&
-        is_array ($backTrace[1]['args']) &&
-        isset ($backTrace[1]['args'][0]) &&
-        is_array ($backTrace[1]['args'][0]) &&
-        isset ($backTrace[1]['args'][0]['routerResourceCore']) &&
-        is_object ($backTrace[1]['args'][0]['routerResourceCore']) &&
-        isset ($backTrace[1]['function']) &&
-        strtolower ($backTrace[1]['function']) == $re) {
-        return $backTrace[1]['args'][0]['routerResourceCore'];
+    public static function resourceCoreRefGiven (array $backTrace) {
+      foreach ($backTrace as $traceData) {
+        if (is_array ($traceData)
+          && isset ($traceData ['args'])
+          && is_array ($traceData ['args'])
+          && isset ($traceData ['args'][0])
+          && is_array ($traceData ['args'][0])
+          && isset ($traceData ['args'][0]['parent'])
+          && is_array ($traceData ['args'][0]['parent'])
+          && isset ($traceData ['args'][0]['parent']['resource'])
+          && $traceData ['args'][0]['parent']['resource'] instanceof Resource) {
+          return $traceData ['args'][0]['parent']['resource'];
+        }
       }
     }
   }}

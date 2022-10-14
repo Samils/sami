@@ -58,13 +58,13 @@ namespace Sammy\Packs\Sami\RouteFactory {
    */
   trait Rest {
 
-    public static function Rest ($base = null, $middleware = '') {
+    public static function Rest (string $routesPath, string $controllerReference, $middleware = '') {
       /**
        * Make sure $path is not an invalid or empty
        * string before proceding.
        */
-      if (!(is_string ($base) && !empty ($base))) {
-        return false;
+      if (!(is_string ($routesPath) && !empty ($routesPath))) {
+        return [];
       }
       /**
        * [$resourceBaseGivenFromArgs]
@@ -72,7 +72,7 @@ namespace Sammy\Packs\Sami\RouteFactory {
        */
       #$resourceBaseGivenFromArgs = ( boolean ) (
        # isset ($args[0]) &&
-       # is_string ($base = $args[0])
+       # is_string ($routesPath = $args[0])
       #);
 
       /**
@@ -88,10 +88,10 @@ namespace Sammy\Packs\Sami\RouteFactory {
         $middleware = '';
       }
 
-      $base_ctrl = self::PathToName ($base, [
-        'separator' => '\\',
-        'capitalized' => true
-      ]);
+      // $controllerReference = self::PathToName ($routesPath, [
+      //   'separator' => '\\',
+      //   'capitalized' => true
+      // ]);
 
       # Rest Routes
       # An array containg the basics routes
@@ -101,50 +101,50 @@ namespace Sammy\Packs\Sami\RouteFactory {
       return [
         'index' => [
           'getRq',
-          $base,
-          $middleware . '@' . $base_ctrl . '/index'
+          $routesPath,
+          $middleware . '@' . $controllerReference . '/index'
         ],
 
         'create' => [
           'postRq',
-          $base,
-          $middleware . '@' . $base_ctrl . '/create'
+          $routesPath,
+          $middleware . '@' . $controllerReference . '/create'
         ],
 
         'new' => [
           'getRq',
-          $base . '/new',
-          $middleware . '@' . $base_ctrl . '/new_'
+          $routesPath . '/new',
+          $middleware . '@' . $controllerReference . '/new_'
         ],
 
         'edit' => [
           'getRq',
-          $base . '/:id/edit',
-          $middleware . '@' . $base_ctrl . '/edit'
+          $routesPath . '/:id/edit',
+          $middleware . '@' . $controllerReference . '/edit'
         ],
 
         'show' => [
           'getRq',
-          $base.'/:id',
-          $middleware . '@' . $base_ctrl . '/show'
+          $routesPath.'/:id',
+          $middleware . '@' . $controllerReference . '/show'
         ],
 
         'update' => [
           'putRq',
-          $base.'/:id',
-          $middleware . '@' . $base_ctrl . '/update'
+          $routesPath.'/:id',
+          $middleware . '@' . $controllerReference . '/update'
         ],
 
         'remove' => [
           'getRq',
-          $base . '/:id/remove',
-          $middleware . '@' . $base_ctrl . '/remove'
+          $routesPath . '/:id/remove',
+          $middleware . '@' . $controllerReference . '/remove'
         ],
 
         'delete' => [
           'deleteRq',
-          $base . '/:id',
-          $middleware . '@' . $base_ctrl . '/delete'
+          $routesPath . '/:id',
+          $middleware . '@' . $controllerReference . '/delete'
         ]
       ];
     }
