@@ -41,7 +41,7 @@ $module->exports = [
 
     $name = join (DIRECTORY_SEPARATOR, $name);
 
-    return $name;
+    return strtolower ($name);
   },
 
   'style.rename' => function ($name) {
@@ -55,7 +55,7 @@ $module->exports = [
 
     $name = join (DIRECTORY_SEPARATOR, $name);
 
-    return $name;
+    return strtolower ($name);
   },
 
   'view.props' => function ($props) {

@@ -293,11 +293,12 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
         for ($i = 0; $i < $argsCount; $i++) {
           # Make sure the current argument
           # is a string
-          if (!is_string ($args [$i]) && $args [$i]) {
-            continue;
+          if (is_string ($args [$i]) && $args [$i]) {
+            if ($modelObject = self::modelContextDefined ()) {
+              $modelObject->setModelAttribute ($args [$i], [], 'array');
+              $modelObject->hasMany ($args [$i]);
+            }
           }
-
-          #static::validates ( $args [$i], ['unique' => true]);
         }
       }
     }
@@ -358,16 +359,19 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
         }
         # ...
         $args = func_get_args ();
-        $argsCount = count ($args);
 
-        for ($i = 0; $i < $argsCount; $i++) {
-          # Make sure the current argument
-          # is a string
-          if (!is_string ($args [$i]) && $args [$i]) {
-            continue;
+        if (count ($args) >= 2) {
+          list ($quantity, $modelRef) = $args;
+
+          switch (strtolower ((string)$quantity)) {
+            case 'many':
+              self::HasMany ($modelRef);
+              break;
+
+            case 'one':
+              self::HasOne ($modelRef);
+              break;
           }
-
-          #static::validates ( $args [$i], ['unique' => true]);
         }
       }
     }

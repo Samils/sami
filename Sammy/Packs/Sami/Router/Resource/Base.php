@@ -94,29 +94,21 @@ namespace Sammy\Packs\Sami\Router\Resource {
     }
 
     public function setExceptions ($exceptions = []) {
-      $exceptions = !is_array ($exceptions) ? func_get_args() : (
-        $exceptions
-      );
+      $exceptions = !is_array ($exceptions) ? func_get_args() : $exceptions;
       /**
        * [$this->exceptions description]
        * @var array
        */
-      $this->exceptions = array_merge ($this->exceptions,
-        $exceptions
-      );
+      $this->exceptions = array_merge ($this->exceptions, $exceptions);
     }
 
     public function setOnlyList ($only = []) {
-      $only = !is_array ($only) ? func_get_args() : (
-        $only
-      );
+      $only = !is_array ($only) ? func_get_args () : $only;
       /**
        * [$this->exceptions description]
        * @var array
        */
-      $this->only = array_merge ($this->only,
-        $only
-      );
+      $this->only = array_merge ($this->only, $only);
     }
 
     public function getExceptions () {
@@ -135,7 +127,7 @@ namespace Sammy\Packs\Sami\Router\Resource {
        * Execute The Route Method
        */
       return call_user_func_array ([$this, 'route'],
-        array_merge (['get'], func_get_args())
+        array_merge (['get'], func_get_args ())
       );
     }
 
@@ -144,9 +136,8 @@ namespace Sammy\Packs\Sami\Router\Resource {
        * Execute The Route Method
        */
       return call_user_func_array ([$this, 'route'],
-        array_merge (['post'], func_get_args())
+        array_merge (['post'], func_get_args ())
       );
     }
-
   }}
 }

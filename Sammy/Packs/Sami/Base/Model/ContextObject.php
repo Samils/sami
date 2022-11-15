@@ -64,42 +64,42 @@ namespace Sammy\Packs\Sami\Base\Model {
      * [$props description]
      * @var array
      */
-    private $props = array (
+    private $props = [
       '@name' => null,
-      '@rules' => array (
-        'attributes' => array (),
-        'belongs_to' => array (),
-        'has_many' => array ()
-      ),
-      '@cols' => array (
-        'id' => array (
-          '@type' => 'int(11)',
-          'null' => false
-        ),
-        'key' => array (
-          '@type' => 'varchar(25)',
-          'null' => true,
+      '@scope' => [
+        'attributes' => [],
+        'many' => [],
+        'one' => []
+      ],
+      '@cols' => [
+        'id' => [
+          '@type'   => 'int(11)',
+          'null'    => false
+        ],
+        'key' => [
+          '@type'   => 'varchar(25)',
+          'null'    => true,
           'default' => null
-        ),
-        'createdAt' => array (
-          '@type' => 'datetime',
-          'null' => false,
+        ],
+        'createdAt' => [
+          '@type'   => 'datetime',
+          'null'    => false,
           'default' => 'DEFAULT_TIMESTAMP'
-        ),
-        'updatedAt' => array (
-          '@type' => 'datetime',
-          'null' => false,
+        ],
+        'updatedAt' => [
+          '@type'   => 'datetime',
+          'null'    => false,
           'default' => 'DEFAULT_TIMESTAMP'
-        )
-      )
-    );
+        ]
+      ]
+    ];
 
     private function setAttr ($attr) {
       if (!(is_string ($attr) && $attr)) {
         return;
       }
 
-      $rules = $this->props['@rules'];
+      $rules = $this->props['@scope'];
 
       $issetAttribute = ( boolean ) (
         isset($rules['attributes'][$attr]) &&
@@ -107,7 +107,7 @@ namespace Sammy\Packs\Sami\Base\Model {
       );
 
       if (!$issetAttribute) {
-        $this->props['@rules']['attributes'][$attr] = [];
+        $this->props['@scope']['attributes'][$attr] = [];
       }
     }
 
@@ -120,13 +120,13 @@ namespace Sammy\Packs\Sami\Base\Model {
 
       if (is_array ($prop) && $prop) {
 
-        $attributes = $this->props ['@rules']['attributes'];
+        $attributes = $this->props ['@scope']['attributes'];
 
-        $this->props ['@rules']['attributes'][$attr] = (
+        $this->props ['@scope']['attributes'][$attr] = (
           array_merge ($attributes [$attr], $prop)
         );
       } elseif (is_string ($prop)) {
-        $this->props ['@rules']['attributes'][$prop] = (
+        $this->props ['@scope']['attributes'][$prop] = (
           array_last_i (func_get_args ())
         );
       }
@@ -169,13 +169,51 @@ namespace Sammy\Packs\Sami\Base\Model {
       Error::NoMethod (static::class, $meth, debug_backtrace ());
     }
 
+    public function setModelAttribute (string $attributeName, $attributeValue = null) {
+      $attributeName = strtolower ($attributeName);
+
+      $this->props ['@scope']['attributes'][$attributeName] = $attributeValue;
+    }
+
+    public function getModelAttributeNames () {
+      return array_keys ($this->props ['@scope']['attributes']);
+    }
+
+    public function getModelAttributes () {
+      return (array) ($this->props ['@scope']['attributes']);
+    }
+
+    public function hasMany (string $modelName) {
+      $relationType = self::getRelationType ();
+
+      array_push ($this->props ['@scope'][$relationType], strtolower ($modelName));
+    }
+
+    public function hasOne (string $modelName) {
+      $relationType = self::getRelationType ();
+
+      array_push ($this->props ['@scope'][$relationType], strtolower ($modelName));
+    }
+
+    public function belongsToOne (string $modelName) {
+      $relationType = self::getRelationType ();
+
+      array_push ($this->props ['@scope'][$relationType], strtolower ($modelName));
+    }
+
+    public function belongsToMany (string $modelName) {
+      $relationType = self::getRelationType ();
+
+      array_push ($this->props ['@scope'][$relationType], strtolower ($modelName));
+    }
+
     /**
      * [has_col description]
-     * @param  [type]  $col [description]
-     * @return boolean      [description]
+     * @param  [type]  $col
+     * @return boolean
      */
     function has_col ($col = null) {
-      return isset ($this->props ['@cols'][ lower($col) ]);
+      return isset ($this->props ['@cols'][ strtolower ($col) ]);
     }
 
     /**
@@ -185,9 +223,18 @@ namespace Sammy\Packs\Sami\Base\Model {
      */
     function get_col_fields ($col = null) {
       $col = strtolower ($col);
+
       if (isset ($this->props ['@cols'][$col])) {
         return ( $this->props ['@cols'][ $col ] );
       }
+    }
+
+    function shouldHaveMany (string $modelName) {
+      return in_array (strtolower ($modelName), $this->props ['@scope']['many']);
+    }
+
+    function shouldHaveOne (string $modelName) {
+      return !$this->shouldHaveMany ($modelName);
     }
 
     /**
@@ -207,7 +254,7 @@ namespace Sammy\Packs\Sami\Base\Model {
      */
     function __get ($prop = null) {
       if (is_string ($prop)) {
-        $prop = preg_replace('/^@+/', '', $prop);
+        $prop = preg_replace ('/^@+/', '', $prop);
 
         if (isset ($this->props [$prop])) {
           return ($this->props [$prop]);
@@ -216,6 +263,18 @@ namespace Sammy\Packs\Sami\Base\Model {
         if (isset ($this->props ['@'.$prop])) {
           return ( $this->props ['@'.$prop] );
         }
+      }
+    }
+
+    private static function getRelationType () {
+      $backTrace = debug_backtrace ();
+
+      $calledFunction = $backTrace [1]['function'];
+
+      if (preg_match ('/(.+)many$/i', $calledFunction)) {
+        return 'many';
+      } else {
+        return 'one';
       }
     }
   }}

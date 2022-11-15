@@ -70,6 +70,12 @@ namespace Sammy\Packs\Sami\Base\Cli {
     use Migrator\Helper\Prepare;
     use Migrator\SchemaFileGenerator;
 
+
+    /**
+     * @var array
+     *
+     * List of table that'll be changed by the next migrating
+     */
     private static $tableList2Change = [];
 
     /**
@@ -276,7 +282,6 @@ namespace Sammy\Packs\Sami\Base\Cli {
 
       $tables = (array) (Table::All ());
 
-
       #echo "\n\n\n\nTable=>\n\n\n";
       #print_r($tables);
 
@@ -295,7 +300,6 @@ namespace Sammy\Packs\Sami\Base\Cli {
       #$schemaFileLines = \php\requires('./schemaFileLines',
       #  $t
       #);
-
 
       # Todo DropReferalTables():
       # Get whole the table names that creates reference
@@ -350,9 +354,13 @@ namespace Sammy\Packs\Sami\Base\Cli {
     }
 
     private static function CreateTable ($table) {
-      if (Table::CreatedFromAMigration ($table)) {
-        # echo "\n\n\n\n'$table' table is created from cache\n\n\n";
-      }
+      $conn = Sbr::getAdapterInstance ();
+
+      // if (false) {
+      //   # echo "\n\n\n\n'$table' table is created from cache\n\n\n";
+      //   #return;
+      // }
+
       # Get whole the table names that creates
       # reference with the current one
       # being migrated in order storing
@@ -360,16 +368,32 @@ namespace Sammy\Packs\Sami\Base\Cli {
       # the database before migrating
       # the current table to the database.
       #echo "\n\n\n\n\nCreating TAble => $table\n\n\n\n\n\n";
-      $referalTables = Table::DropReferalTables ($table);
+      $referalTables = self::DropReferalTables ($table);
 
-      #print_r ($referalTables);
+      // print("\n\ntable {$table} referalTables\n");
+      // print_r ($referalTables);
 
-      if ($referalTables) {
-        #print_r($referalTables);
-        #exit ("\n\n\n\nTable => $table\n\n\n\n");
-      }
+      // if ($referalTables) {
+      //   #print_r($referalTables);
+      //   #exit ("\n\n\n\nTable => $table\n\n\n\n");
+      // }
+
+      /**
+       * user
+       *
+       * post -> user
+       *
+       * comment -> post, user
+       *
+       * ----
+       *
+       * comment
+       *  - create user
+       *  - create post
+       */
 
       #echo "\n\n\n\nCreate IT\n\n\n\n\n";
+      # $conn = SamiBase::getAdapterInstance ();
 
       $structure = Table::Read ($table);
 
@@ -377,18 +401,46 @@ namespace Sammy\Packs\Sami\Base\Cli {
         return;
       }
 
+
+      // echo "Created Table Name => $table\n\n";
+      // print_r ($referalTables);
+
       $tableReferences = Table::GetReferenceTables ($table);
 
       foreach ($tableReferences as $tableReference) {
-        self::CreateTable ($tableReference);
+        if (!$conn->tableExists ($tableReference)) {
+          self::CreateTable ($tableReference);
+        }
       }
 
-      self::$tableList2Change = array_merge (
-        self::$tableList2Change,
-        $referalTables
-      );
+      //self::$tableList2Change = array_merge (
+      //  self::$tableList2Change,
+      //  $referalTables
+      //);
 
       Table::Create ($table, $structure);
+
+      foreach ($referalTables as $referalTable) {
+        self::CreateTable ($referalTable);
+      }
     }
+
+
+    /**
+     * @method void
+     *
+     * Delete whole the tables that has a reference for
+     * the given table by name
+     */
+    public static function DropReferalTables (string $table) {
+      $referalTables = Table::GetReferalTables ($table);
+
+      foreach ($referalTables as $referalTable) {
+        self::DropReferalTables ($referalTable);
+      }
+
+      return Table::DropReferalTables ($table);
+    }
+
   }}
 }

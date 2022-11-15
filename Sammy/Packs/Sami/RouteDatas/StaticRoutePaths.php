@@ -68,7 +68,14 @@ namespace Sammy\Packs\Sami\RouteDatas {
 
       $routes = $app->ApplicationRoutesList ('@get');
 
-      $routePaths = array_keys ($routes);
+      $routePaths = array_map (function ($route) {
+        if (is_array ($route) && isset ($route ['route'])) {
+          $routePath = $route ['route'];
+
+          return (string)($routePath);
+        }
+
+      }, $routes);
 
       $staticRoutePaths = array_filter ($routePaths, function ($routePath) {
         return !preg_match ('/^\/\^\\\\\//', $routePath);

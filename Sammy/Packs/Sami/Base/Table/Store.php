@@ -293,6 +293,10 @@ namespace Sammy\Packs\Sami\Base\Table {
     public static function DropReferalTables ($referenceTable) {
       $referalTables = self::GetReferalTables ($referenceTable);
 
+      #echo "Table Name => $referenceTable\n\n";
+      #print_r ($referalTables);
+      #echo "\n\n\n";
+
       self::DropList ($referalTables);
 
       return $referalTables;
@@ -313,7 +317,7 @@ namespace Sammy\Packs\Sami\Base\Table {
     }
 
     public static function Created ($tableName) {
-      return in_array (self::$createdTableNames, $tableName);
+      return in_array ($tableName, self::$createdTableNames);
     }
 
     public static function Create ($table, $body) {

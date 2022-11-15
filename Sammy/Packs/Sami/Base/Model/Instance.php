@@ -76,17 +76,7 @@ namespace Sammy\Packs\Sami\Base\Model {
     private $cols = array ();
 
     private function scopeDefined () {
-      $model = self::ModelName ();
-
-      #echo $model, '<br /><pre>';
-
-      #print_r(array_keys (self::$obmodels));
-
-      #echo '</pre><br /><br /><br />';
-      return (boolean) (
-        isset (self::$obmodels[ $model ]) &&
-        (self::$obmodels[ $model ] instanceof ContextObject)
-      );
+      return static::modelContextDefined ();
     }
 
     private function fill_props () {
@@ -121,6 +111,17 @@ namespace Sammy\Packs\Sami\Base\Model {
       }
     }
 
+    private static function modelContextDefined () {
+      $model = self::ModelName ();
+
+      if (isset (self::$obmodels [$model])
+        && self::$obmodels [$model] instanceof ContextObject) {
+        return self::$obmodels [$model];
+      }
+
+      return false;
+    }
+
     private static function constructingFromController () {
       $backTrace = func_num_args() >= 1 ? func_get_arg(0) : null;
 
@@ -145,9 +146,7 @@ namespace Sammy\Packs\Sami\Base\Model {
           isset ($backTrace[1]) &&
           is_array ($backTrace[1]) &&
           isset ($backTrace[1]['class']) && (
-            in_array (SamiController::class, class_parents(
-              $backTrace[1]['class']
-            ))
+            in_array (SamiController::class, class_parents ($backTrace[1]['class']))
           )
         );
       }
@@ -176,7 +175,7 @@ namespace Sammy\Packs\Sami\Base\Model {
     }
 
     public function __toString () {
-      return str ( $this->lean () );
+      return str ($this->lean ());
     }
 
     public function save () {

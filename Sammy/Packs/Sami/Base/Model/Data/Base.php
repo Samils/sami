@@ -79,10 +79,13 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
 
     public function lean () {
       $props = array ();
-      $colsCount = count ($this->cols);
+
+      $cols = $this->getColumnNames ();
+
+      $colsCount = count ($cols);
 
       for ($i = 0; $i < $colsCount; $i++) {
-        $columnName = $this->cols [ $i ];
+        $columnName = $cols [ $i ];
         $dataValue = $this->getData ($columnName);
 
         #echo $columnName, " => ", $dataValue, "<br />";
@@ -91,8 +94,6 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
           $props [ $columnName ] = $dataValue;
         }
       }
-
-      #exit (json_encode($props));
 
       return $props;
     }
@@ -106,6 +107,16 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
       }
 
       return $props;
+    }
+
+    private function getColumnNames () {
+      $cols = $this->cols;
+
+      if ($modelObject = self::modelContextDefined ()) {
+        $cols = array_merge ($cols, $modelObject->getModelAttributeNames ());
+      }
+
+      return $cols;
     }
 
     private static function ModelAttributes () {

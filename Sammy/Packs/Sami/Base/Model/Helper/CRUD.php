@@ -625,13 +625,19 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
 
       $datas = self::filterValidProps ($datas);
 
+      $options = [];
+
+      if (!in_array ('id', $datas)) {
+        array_push ($datas, 'id');
+
+        $options ['hide_id'] = true;
+      }
+
       $rowList = $model_obj->read ($datas);
 
       # Collect whole the got rows
       # from the current query
-      return self::CollectRows (
-        $rowList, $datas
-      );
+      return self::CollectRows ($rowList, $options);
     }
 
     /**

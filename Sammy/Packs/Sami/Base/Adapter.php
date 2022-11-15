@@ -75,7 +75,7 @@ namespace Sammy\Packs\Sami\Base {
      *
      * @return object
      */
-    public abstract function connect ($connectionDatas = []);
+    public abstract function connect (array $connectionDatas = []);
 
     /**
      * @method PDO model
@@ -101,6 +101,6 @@ namespace Sammy\Packs\Sami\Base {
      *
      * @return PDO
      */
-    public abstract function model ($table = '', $forceSync = false, $cols = []);
+    public abstract function model (string $table = '', bool $forceSync = false, array $cols = []);
   }}
 }

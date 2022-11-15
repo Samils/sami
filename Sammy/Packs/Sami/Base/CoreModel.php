@@ -71,6 +71,8 @@ namespace Sammy\Packs\Sami\Base {
      */
     private static $obmodels = array ();
 
+    private static $rowsMap = [];
+
     /**
      * [InitModelConfigurations description]
      * @param array $props [description]
@@ -181,22 +183,61 @@ namespace Sammy\Packs\Sami\Base {
       return preg_split ('/\-+/', $string);
     }
 
-    private static function CollectRows ($rows, $datas = null) {
+    private static function CollectRows ($rows, array $options = []) {
       if (!(is_object ($rows))) {
         return;
       }
 
-      $datas = is_array ($datas) && $datas ? $datas : null;
+      $defaultOptions = [
+        'hide_id' => !true
+      ];
 
-      $rows_array = array ();
+      $options = array_merge ($defaultOptions, $options);
+
+      # $datas = is_array ($datas) && $datas ? $datas : null;
+
+      $rows_array = [];
+      $rowsList = [];
+
+      $configCompiler = requires ('gogue-plugin-config-compiler');
 
       while ($row = $rows->fetch ()) {
-        array_push ($rows_array,
-          new static ( \Saml::Object2Array ($row) )
-        );
+        $rowData = \Saml::Object2Array ($row);
+
+        $rowData = $configCompiler ($rowData);
+
+        $id = $rowData ['id'];
+
+        if (!isset (self::$rowsMap [$id])) {
+          /* $rowsMap [$id] = */ self::defineRowMapElement ($id, $rowData);
+        } else {
+          self::updateRowMapElement ($id, $rowData);
+        }
+
+        array_push ($rowsList, $rowData);
+
+        // if ($options ['hide_id'] && isset ($rowData ['id'])) {
+        //   unset ($rowData ['id']);
+        // }
+
+        // $data = $configCompiler ($rowData);
+
+        // $it = new static ($data);
+
+        // array_push ($rows_array, $it);
       }
 
-      return ( $rows_array );
+      foreach ($rowsList as $row) {
+        $rowId = $row ['id'];
+
+        array_push ($rows_array, new static (self::$rowsMap [$rowId]));
+      }
+
+      # $rowsMap = self::$rowsMap;
+
+      self::$rowsMap = [];
+
+      return $rows_array;
     }
 
     private static function filterValidProps ($props) {
@@ -204,15 +245,13 @@ namespace Sammy\Packs\Sami\Base {
         return null;
       }
 
-      $it = new static;
-      $datas = array_keys ($it->getProps ());
       $validProps = [];
 
       foreach ($props as $key => $prop) {
         if (is_int ($key) && is_string ($prop)) {
           $prop = strtolower ((string)$prop);
 
-          if (in_array ($prop, $datas)) {
+          if (self::isValidProp ($prop)) {
             array_push ($validProps, $prop);
           }
         } else {
@@ -222,5 +261,52 @@ namespace Sammy\Packs\Sami\Base {
 
       return $validProps;
     }
+
+    private static function isValidProp (string $prop) {
+      $it = new static;
+
+      $datas = array_keys ($it->getProps ());
+
+      if (in_array ($prop, $datas)) {
+        return true;
+      }
+
+      if ($modelObject = self::modelContextDefined ()) {
+        return in_array (strtolower ($prop), $modelObject->getModelAttributeNames ());
+      }
+    }
+
+    private static function defineRowMapElement ($id, $rowData) {
+      self::$rowsMap [$id] = $rowData;
+
+      foreach (self::$rowsMap [$id] as $key => $value) {
+        if (is_array ($value)) {
+          $modelObject = self::modelContextDefined ();
+
+          if ($modelObject->shouldHaveMany ($key)) {
+            self::$rowsMap [$id][$key] = [$value];
+          } else {
+            self::$rowsMap [$id][$key] = $value;
+          }
+        }
+      }
+    }
+
+    private static function updateRowMapElement ($id, $rowData) {
+      #self::$rowsMap [$id] = $rowData;
+
+      foreach ($rowData as $key => $value) {
+        if (is_array ($value)) {
+          $modelObject = self::modelContextDefined ();
+
+          if ($modelObject->shouldHaveMany ($key)) {
+            array_push (self::$rowsMap [$id][$key], $value);
+          } else {
+            self::$rowsMap [$id][$key] = $value;
+          }
+        }
+      }
+    }
+
   }}
 }

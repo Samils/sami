@@ -90,7 +90,7 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
      * @param [type] $value
      */
     public function setData ($data = '', $value = null) {
-      if (!(is_string($data) && is_right_var_name ($data)))
+      if (!(is_string ($data) && is_right_var_name ($data)))
         return;
 
       $data = lower ($data);
@@ -103,12 +103,12 @@ namespace Sammy\Packs\Sami\Base\Model\Data {
         $trace [ 1 ][ 'class' ] === self::class
       );
 
-      if (in_array($data, array_keys($this->props))) {
-        $this->props[ $data ] = str ( $value );
-      } elseif ($inSamiBaseClass) {
-        if (in_array ('#'.$data, array_keys ($this->props))) {
-          $this->props[ '#'.$data ] = str ( $value );
-        }
+      if (in_array ($data, array_keys($this->props))) {
+        $this->props [ $data ] = str ( $value );
+      } elseif ($inSamiBaseClass && in_array ('#'.$data, array_keys ($this->props))) {
+        $this->props[ '#'.$data ] = str ( $value );
+      } elseif (self::isValidProp ($data)) {
+        $this->props [ '#'.$data ] = $value;
       }
 
       return $this;

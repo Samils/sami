@@ -108,13 +108,13 @@ namespace Sammy\Packs\Sami\RouteFactory {
         'create' => [
           'postRq',
           $routesPath,
-          $middleware . '@' . $controllerReference . '/create'
+          $middleware . '@' . $controllerReference . '/store'
         ],
 
         'new' => [
           'getRq',
           $routesPath . '/new',
-          $middleware . '@' . $controllerReference . '/new_'
+          $middleware . '@' . $controllerReference . '/create'
         ],
 
         'edit' => [
