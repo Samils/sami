@@ -98,10 +98,18 @@ namespace Sammy\Packs\Sami\Middler {
         if (function_exists ($alt) ) {
           return [ call_user_func_array ($alt, $args) ];
         }
+
+        if (class_exists ($alt)) {
+          $middlewareObject = new $alt;
+
+          if (method_exists ($middlewareObject, 'handler')) {
+            return [call_user_func_array ([$middlewareObject, 'handler'], $args)];
+          }
+        }
       }
     }
 
-    public function resolveClass ($middlewareName,$middlewareAction, $args) {
+    public function resolveClass ($middlewareName, $middlewareAction, $args) {
       $alts = $this->getNameAlts ($middlewareName);
 
       foreach ($alts as $k => $alt) {
