@@ -1,5 +1,5 @@
 namespace<?= $props ['namespace'] ? ' ' . $props ['namespace'] : '' ?> {
-  use SamiController;
+  <?= !empty ($props ['namespace']) ? 'use SamiController;' : '' ?>
 
   /**
    * <?= $props ['className'] ?>

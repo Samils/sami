@@ -115,18 +115,16 @@ namespace Sammy\Packs\Sami\Middler {
       foreach ($alts as $k => $alt) {
 
         $middlewareIsAnAppMiddleware = ( boolean ) (
-          class_exists ($cn = $alt) &&
-          in_array ('ApplicationMiddleware',
-            class_parents ($cn)
-          )
+          class_exists ($middlewareClassName = $alt) &&
+          in_array ('ApplicationMiddleware', class_parents ($middlewareClassName))
         );
 
         if ( $middlewareIsAnAppMiddleware ) {
-          $middlewareCore = new $cn ();
+          $middlewareObject = new $middlewareClassName ();
 
-          if (method_exists($middlewareCore, $middlewareAction)) {
+          if (method_exists ($middlewareObject, $middlewareAction)) {
             $response = call_user_func_array (
-              [$middlewareCore, $middlewareAction], $args
+              [$middlewareObject, $middlewareAction], $args
             );
 
             return [ $response ];

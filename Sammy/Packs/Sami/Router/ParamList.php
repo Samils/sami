@@ -5,7 +5,7 @@
  *
  * @keywords Samils, ils, php framework
  * -----------------
- * @package Sammy\Packs\Sami
+ * @package Sammy\Packs\Sami\Router
  * - Autoload, application dependencies
  *
  * MIT License
@@ -30,7 +30,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace Sammy\Packs\Sami {
+namespace Sammy\Packs\Sami\Router {
   /**
    * Make sure the module base internal class is not
    * declared in the php global scope defore creating
@@ -39,11 +39,11 @@ namespace Sammy\Packs\Sami {
    * when trying to run the current command by the cli
    * API.
    */
-  if (!class_exists ('Sammy\Packs\Sami\Middler')) {
+  if (!class_exists ('Sammy\Packs\Sami\Router\ParamList')) {
   /**
-   * @class Middler
+   * @class ParamList
    * Base internal class for the
-   * Sami module.
+   * Sami\Router module.
    * -
    * This is (in the ils environment)
    * an instance of the php module,
@@ -56,56 +56,46 @@ namespace Sammy\Packs\Sami {
    * and boot it by using the ils directory boot.
    * -
    */
-  class Middler {
-    use Middler\Base;
-
+  class ParamList {
     /**
-     * [resolve]
-     * @param  string $middleware
-     * @param array $args?
-     * @param array $options?
-     * @return array|null
+     * @var array
+     *
+     * param list
      */
-    function resolve ($middleware = '', $args = [], $options = []) {
-      if (!is_string ($middleware)) {
-        $middleware = str ($middleware);
+    private $props = array ();
+
+    public function __construct (array $props) {
+      $this->setProps ($props);
+    }
+
+    public function __get (string $prop) {
+      $prop = self::formatPropertyName ($prop);
+
+      if (isset ($this->props [$prop])) {
+        return $this->props [$prop];
       }
+    }
 
-      $re = '/(\:([a-zA-Z0-9_]+))$/';
+    public function __isset (string $prop) {
+      $prop = self::formatPropertyName ($prop);
 
-      $args = !is_array ($args) ? [] : $args;
-      $options = !is_array ($options) ? [] : $options;
-      $middlewareAction = 'handle';
-      $middlewareName = preg_replace ('/\:+/', '\\', preg_replace ($re, '', $middleware));
+      return isset ($this->props [$prop]);
+    }
 
-      if (preg_match ($re, $middleware, $actionMatch)) {
-        $middlewareAction = $actionMatch [2];
+    protected function setProps (array $props) {
+      foreach ($props as $prop => $value) {
+        $this->setProp ($prop, $value);
       }
+    }
 
-      if ($response = $this->resolveClass ($middlewareName, $middlewareAction, $args)) {
-        return $response [ 0 ];
-      }
+    protected function setProp (string $prop, $value = null) {
+      $prop = self::formatPropertyName ($prop);
 
-      if (!preg_match ($re, $middleware)
-        && $response = $this->resolveFunc ($middlewareName, $args)) {
-        return $response [ 0 ];
-      }
+      $this->props [$prop] = $value;
+    }
 
-      $validTraceArrayInOptions = ( boolean ) (
-        isset ($options['trace']) &&
-        is_array ($options['trace']) &&
-        isset($options['trace'][0]) &&
-        is_array ($t0 = $options['trace'][0]) && (
-          isset ($t0['file']) &&
-          isset ($t0['line'])
-        )
-      );
-
-      $trace = $validTraceArrayInOptions ? $options['trace'] : (
-        debug_backtrace ()
-      );
-
-      MiddlerError::NoMiddleware ($middleware, $trace);
+    private static function formatPropertyName (string $propertyName) {
+      return preg_replace ('/[^a-zA-Z0-9_]+/', '', strtolower ($propertyName));
     }
   }}
 }

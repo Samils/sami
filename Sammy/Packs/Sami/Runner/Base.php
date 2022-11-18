@@ -37,6 +37,7 @@ namespace Sammy\Packs\Sami\Runner {
   use Sammy\Packs\HTTP\Request;
   use Sammy\Packs\HTTP\Response;
   use Sammy\Packs\Sami\RouteDatas;
+  use Sammy\Packs\Sami\Router\ParamList;
   use Sammy\Packs\Sami\ParamContextBootstrapper;
   use Sammy\Packs\Samils\ApplicationServerHelpers;
   use Sammy\Packs\Samils\Controller\Base as Controller;
@@ -116,7 +117,11 @@ namespace Sammy\Packs\Sami\Runner {
         $middlewareDatas = [$middlewareDatas];
       }
 
-      // exit ('UA');
+      $routePathObject = $routeTemplateDatas ['route'];
+
+      $routePathParameters = $routePathObject->getParameters ();
+
+      $request->params = new ParamList ($routePathParameters);;
 
       // # reference datas
       // $referenceDatas = [
@@ -127,7 +132,7 @@ namespace Sammy\Packs\Sami\Runner {
 
       // $routeTemplateDatas ['template'] = isset ($routeTemplateDatas ['template']) ? $routeTemplateDatas ['template'] : null;
 
-      // $paramContext = new Param ();
+      // $paramContext = new Param (null, $routePathObject->getParamNames ());
       // # Switch 'template' property
       // # from the '$rt' variable
       // # in order getting the given
@@ -146,7 +151,7 @@ namespace Sammy\Packs\Sami\Runner {
       //   $referenceDatas ['params'] = $paramContext;
       // }
 
-      // ParamContextBootstrapper::BootstrapParamContext ($paramContext);
+      ParamContextBootstrapper::BootstrapParamContext ($routePathParameters);
 
       # Verify if the 'matches' index
       # is inside the '$referenceDatas' array
@@ -184,7 +189,8 @@ namespace Sammy\Packs\Sami\Runner {
             'layout' => 'application',
             'action' => $routeSource->action,
             'responseData' => $rae ['responseData']
-          ]
+          ],
+          $rae
         )
       );
 

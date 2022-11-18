@@ -71,6 +71,7 @@ namespace Sammy\Packs\Sami\Rae {
       if (is_array ($viewTemplateDatas)) {
         $templateDatas = array (
           'template' => $viewTemplateDatas,
+          'templateRelativePath' => $templatePath,
           'responseData' => $responseponseDataObject
         );
       }

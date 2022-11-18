@@ -59,5 +59,30 @@ namespace Sammy\Packs\Sami\Base\Model\Helper {
   trait Base {
     use CRUD;
     use Validation;
+
+    /**
+     * @method array
+     *
+     * readLines
+     */
+    public static function readLines (int $columnMaxItems = 1) {
+      $lines = [];
+
+      $allRecords = static::all ();
+
+      for ($i = 0; $i < count ($allRecords); $i += $columnMaxItems) {
+        $line = [];
+
+        for ($n = $i; $n < $columnMaxItems + $i; $n++) {
+          if (isset ($allRecords [$n])) {
+            array_push ($line, $allRecords [$n]);
+          }
+        }
+
+        array_push ($lines, $line);
+      }
+
+      return $lines;
+    }
   }}
 }

@@ -32,6 +32,7 @@
  */
 namespace Sammy\Packs\Sami\Base\Model\Helper {
   use Closure;
+  use params;
   /**
    * Make sure the module base internal trait is not
    * declared in the php global scope defore creating

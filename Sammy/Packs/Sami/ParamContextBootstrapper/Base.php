@@ -137,7 +137,7 @@ namespace Sammy\Packs\Sami\ParamContextBootstrapper {
       # creating a constant for each inside the
       # 'params' class and have it as a constant
       # inside its scope.
-      $param_names = $params->getParamNames();
+      $param_names = array_keys ($params);
       # Count the '$param_names' array to
       # avoid doing that inside the loop
       # and have the length of the '$param_names'
@@ -198,27 +198,25 @@ namespace Sammy\Packs\Sami\ParamContextBootstrapper {
         # Store the '$param_value' as a
         # numeric value if it is a numeric
         # value.
-        if (is_numeric($params->get($param))) {
+        if (is_numeric ($params [$param])) {
           # Store the '$param_value'
           # as a numeric value
           # in order having it as
           # a number and make the
           # number operators available
           # for the same
-          $param_value = $params->get (
+          $param_value = $params [
             # The current parameter
             # name insi de the '$param_names'
             # array.
             $param
-          );
+          ];
         } else {
           # Otherwise (It's not a string); store
           # the parameter value as a string, in order
           # avoiding to have a filter for an unknown
           # value type.
-          $param_value = '\'' . (
-            str ($params->get ($param)) . '\''
-          );
+          $param_value = '\'' . (str ($params [$param]) . '\'');
         }
         # Avoid configuring a constant for
         # the 'params' class if '$param' string
@@ -237,7 +235,7 @@ namespace Sammy\Packs\Sami\ParamContextBootstrapper {
         }
 
         $paramsArr [ $param ] = (
-          $params->get ( $param )
+          $params [$param]
         );
       }
 

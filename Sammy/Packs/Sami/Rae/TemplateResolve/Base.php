@@ -41,10 +41,8 @@ namespace Sammy\Packs\Sami\Rae\TemplateResolve {
      */
     public function resolve ($template = '') {
       $template = $this->pathName ($template);
-        # View Engine Datas
-      $ved = ApplicationServerHelpers::conf (
-        'view-engine'
-      );
+      # View Engine Datas
+      $ved = ApplicationServerHelpers::conf ('view-engine');
 
       if ( is_object ($ved) ) {
         $fe = $ved->fileExtensions;
@@ -65,23 +63,15 @@ namespace Sammy\Packs\Sami\Rae\TemplateResolve {
           if ( !is_string ( $fe[ $i ] ) )
             continue;
 
-          $view_path = $ved->viewsDir . ( DS .
-            $template . preg_replace ('/^\.*/', '.',
-              $fe[ $i ]
-            )
-          );
+          $view_path = $ved->viewsDir . ( DS . $template . preg_replace ('/^\.*/', '.', $fe [$i]));
 
           if ( is_file ( $view_path ) ) {
-            return [ $view_path, 'viewsDir' => $ved->viewsDir ];
+            return [$view_path, 'viewsDir' => $ved->viewsDir, 'template' => $template];
           } else {
-            $view_path = $ved->viewsDir . ( DS .
-              $template . DS . 'index' . preg_replace ('/^\.*/', '.',
-                $fe[ $i ]
-              )
-            );
+            $view_path = $ved->viewsDir . (DS . $template . DS . 'index' . preg_replace ('/^\.*/', '.', $fe [$i]));
 
             if ( is_file ( $view_path ) ) {
-              return [$view_path, 'viewsDir' => $ved->viewsDir];
+              return [$view_path, 'viewsDir' => $ved->viewsDir, 'template' => $template];
             }
           }
         }
